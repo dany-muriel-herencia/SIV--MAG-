@@ -2,22 +2,42 @@ namespace SivMag.Domain.Fiados;
 
 public class CuentaFiado
 {
-    public CuentaFiado(decimal deuda)
+    private const decimal ImporteMinimoPermitido = 0m;
+
+    public CuentaFiado(Guid clienteId, decimal saldoInicialDeuda)
     {
-        Saldo = deuda;
+        ClienteId = clienteId;
+        SaldoDeudor = saldoInicialDeuda;
     }
 
-    public decimal Saldo { get; private set; }
+    public Guid ClienteId { get; }
+
+    public decimal SaldoDeudor { get; private set; }
 
     public void RegistrarAbono(decimal importe)
     {
-        if (importe <= 0m || importe > Saldo)
+        ValidarImportePositivo(importe);
+        ValidarImporteNoMayorQueSaldoDeudor(importe);
+
+        SaldoDeudor -= importe;
+    }
+
+    private static void ValidarImportePositivo(decimal importe)
+    {
+        if (importe <= ImporteMinimoPermitido)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(importe),
-                "El abono debe ser mayor que cero y no superar el saldo de la deuda.");
+                "El abono debe ser mayor que cero.");
         }
+    }
 
-        Saldo -= importe;
+    private void ValidarImporteNoMayorQueSaldoDeudor(decimal importe)
+    {
+        if (importe > SaldoDeudor)
+        {
+            throw new InvalidOperationException(
+                "El abono no puede superar el saldo deudor pendiente.");
+        }
     }
 }
