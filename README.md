@@ -145,10 +145,10 @@ Todo desarrollo en el repositorio debe seguir las pautas detalladas en el archiv
 
 Proyecto desarrollado para el curso de **Ingeniería de Software I**:
 
-* Dany Muriel Herencia (*Owner del repositorio*)
-* Integrante 2
-* Integrante 3
-* Integrante 4
+* Dany Muriel Herencia (*Analista y Developer Frontend*)
+* Jhon Andrioly Zenteno Sosa (*QA y Analista*)
+* Adrian Eliel Socualaya Feliciano (*Code review*)
+* Willian Arturo Salazar Quispe (*Developer Backend*)
 
 ---
 
