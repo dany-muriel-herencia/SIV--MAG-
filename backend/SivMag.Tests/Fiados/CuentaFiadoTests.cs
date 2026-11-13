@@ -80,4 +80,58 @@ public class CuentaFiadoTests
         cuenta.ClienteId.Should().Be(clienteId);
         cuenta.SaldoDeudor.Should().Be(0m);
     }
+
+    [Fact]
+    public void RegistrarAbono_AbonoValido_AgregaImporteAlHistorial()
+    {
+        var cuenta = new CuentaFiado(Guid.NewGuid(), 100m);
+
+        cuenta.RegistrarAbono(40m);
+
+        cuenta.SaldoDeudor.Should().Be(60m);
+        cuenta.HistorialAbonos.Should().Equal(40m);
+    }
+
+    [Fact]
+    public void RegistrarAbono_AbonosSucesivos_RegistraImportesEnOrden()
+    {
+        var cuenta = new CuentaFiado(Guid.NewGuid(), 100m);
+
+        cuenta.RegistrarAbono(30m);
+        cuenta.RegistrarAbono(20m);
+
+        cuenta.SaldoDeudor.Should().Be(50m);
+        cuenta.HistorialAbonos.Should().Equal(30m, 20m);
+    }
+
+    [Fact]
+    public void HistorialAbonos_NoPermiteModificarLaColeccion()
+    {
+        var cuenta = new CuentaFiado(Guid.NewGuid(), 100m);
+        cuenta.RegistrarAbono(40m);
+
+        var historialMutable = cuenta.HistorialAbonos as IList<decimal>;
+
+        historialMutable.Should().NotBeNull();
+        var accion = () => historialMutable!.Add(10m);
+
+        accion.Should().Throw<NotSupportedException>();
+        cuenta.HistorialAbonos.Should().Equal(40m);
+    }
+
+    [Fact]
+    public void RegistrarAbono_AbonoInvalido_NoModificaSaldoNiHistorial()
+    {
+        var cuenta = new CuentaFiado(Guid.NewGuid(), 100m);
+
+        var abonoCero = () => cuenta.RegistrarAbono(0m);
+        var abonoNegativo = () => cuenta.RegistrarAbono(-15m);
+        var abonoMayorQueElSaldo = () => cuenta.RegistrarAbono(101m);
+
+        abonoCero.Should().Throw<ArgumentOutOfRangeException>();
+        abonoNegativo.Should().Throw<ArgumentOutOfRangeException>();
+        abonoMayorQueElSaldo.Should().Throw<InvalidOperationException>();
+        cuenta.SaldoDeudor.Should().Be(100m);
+        cuenta.HistorialAbonos.Should().BeEmpty();
+    }
 }
