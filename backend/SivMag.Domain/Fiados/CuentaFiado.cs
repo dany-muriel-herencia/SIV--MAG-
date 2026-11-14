@@ -5,8 +5,8 @@ namespace SivMag.Domain.Fiados;
 public class CuentaFiado
 {
     private const decimal ImporteMinimoPermitido = 0m;
-    private readonly List<decimal> _abonos = new();
-    private readonly ReadOnlyCollection<decimal> _historialAbonos;
+    private readonly List<AbonoFiado> _abonos = new();
+    private readonly ReadOnlyCollection<AbonoFiado> _historialAbonos;
 
     public CuentaFiado(Guid clienteId, decimal saldoInicialDeuda)
     {
@@ -19,15 +19,20 @@ public class CuentaFiado
 
     public decimal SaldoDeudor { get; private set; }
 
-    public IReadOnlyList<decimal> HistorialAbonos => _historialAbonos;
+    public IReadOnlyList<AbonoFiado> HistorialAbonos => _historialAbonos;
 
     public void RegistrarAbono(decimal importe)
     {
         ValidarImportePositivo(importe);
         ValidarImporteNoMayorQueSaldoDeudor(importe);
 
+        var abono = new AbonoFiado(
+            Guid.NewGuid(),
+            importe,
+            DateTimeOffset.UtcNow);
+
+        _abonos.Add(abono);
         SaldoDeudor -= importe;
-        _abonos.Add(importe);
     }
 
     private static void ValidarImportePositivo(decimal importe)
