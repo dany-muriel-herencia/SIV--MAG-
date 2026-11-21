@@ -1,0 +1,62 @@
+<div class="inline-flex p-1 bg-slate-100/90 rounded-xl border border-slate-200/70 shrink-0 select-none">
+
+  <!-- TODOS -->
+  <button
+    type="button"
+    (click)="statusChange.emit(undefined)"
+    [class]="'px-3 py-1.5 text-xs rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1.5 ' + btnClass().all"
+  >
+    <span [class]="'w-1.5 h-1.5 rounded-full transition-colors ' + 
+                   (value() === undefined ? 'bg-slate-600' : 'bg-slate-400')">
+    </span>
+    <span>Todos</span>
+
+    @if (totalCount() !== undefined) {
+      <span [class]="'ml-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-semibold tabular-nums transition-colors ' + badgeClass().all">
+        {{ totalCount() }}
+      </span>
+    }
+  </button>
+
+  <!-- ACTIVOS -->
+  <button
+    type="button"
+    (click)="statusChange.emit(true)"
+    [class]="'px-3 py-1.5 text-xs rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1.5 ' + btnClass().active"
+  >
+    <span class="relative flex h-2 w-2 shrink-0">
+      @if (value() === true) {
+        <span class="animate-ping absolute inset-0 rounded-full bg-emerald-400 opacity-75"></span>
+      }
+      <span [class]="'relative flex h-2 w-2 rounded-full transition-colors ' + 
+                     (value() === true ? 'bg-emerald-500' : 'bg-slate-400')">
+      </span>
+    </span>
+    <span>Activos</span>
+
+    @if (activeCount() !== undefined) {
+      <span [class]="'ml-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-semibold tabular-nums transition-colors ' + badgeClass().active">
+        {{ activeCount() }}
+      </span>
+    }
+  </button>
+
+  <!-- INACTIVOS -->
+  <button
+    type="button"
+    (click)="statusChange.emit(false)"
+    [class]="'px-3 py-1.5 text-xs rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1.5 ' + btnClass().inactive"
+  >
+    <span [class]="'w-1.5 h-1.5 rounded-full transition-colors ' + 
+                   (value() === false ? 'bg-rose-500' : 'bg-slate-400')">
+    </span>
+    <span>Inactivos</span>
+
+    @if (inactiveCount() !== undefined) {
+      <span [class]="'ml-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-semibold tabular-nums transition-colors ' + badgeClass().inactive">
+        {{ inactiveCount() }}
+      </span>
+    }
+  </button>
+
+</div>

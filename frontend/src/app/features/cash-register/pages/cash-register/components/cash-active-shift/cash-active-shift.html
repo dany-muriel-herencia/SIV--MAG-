@@ -1,0 +1,33 @@
+<div class="space-y-6">
+  @if (errorMessage()) {
+    <div class="p-4 bg-danger-bg border border-rose-200/60 rounded-2xl text-danger text-xs flex items-center gap-2.5">
+      <i class="pi pi-exclamation-triangle text-base shrink-0"></i>
+      <div>
+        <p class="font-bold">Error al cerrar el turno</p>
+        <p class="mt-0.5">{{ errorMessage() }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- 1. Encabezado en Vivo -->
+  <app-shift-header
+    [session]="session()"
+    [elapsedTime]="elapsedTime()"
+    (onGoToSales)="onGoToSales.emit()"
+  />
+
+  <!-- 2. Rejilla de Métricas -->
+  <app-shift-metrics-grid
+    [session]="session()"
+    [expectedBalance]="expectedBalance()"
+  />
+
+  <!-- 3. Panel de Arqueo y Cierre -->
+  <app-shift-arqueo-panel
+    [session]="session()"
+    [expectedBalance]="expectedBalance()"
+    [isClosing]="isClosing()"
+    (onClose)="onClose.emit($event)"
+  />
+
+</div>

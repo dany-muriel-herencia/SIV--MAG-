@@ -1,0 +1,103 @@
+<div class="space-y-6">
+
+  <!-- Header + Controles -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Caja y Turnos</h1>
+        
+        @if (session()?.isOpen) {
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-success-bg text-success border border-emerald-200/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Turno Abierto
+          </span>
+        }
+      </div>
+      <p class="text-xs text-slate-500 mt-1">Gestión de aperturas, arqueos en vivo y cierres de turno</p>
+    </div>
+
+    <div class="flex items-center gap-2.5 self-start sm:self-auto">
+      <!-- Botón Actualizar -->
+      <button
+        type="button"
+        (click)="refresh()"
+        [disabled]="isFetching()"
+        class="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200/80 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+        title="Actualizar datos"
+      >
+        <i class="pi pi-refresh text-xs" [class.pi-spin]="isFetching()"></i>
+        <span class="hidden sm:inline">Actualizar</span>
+      </button>
+
+      <!-- Segmented Control para Navegación de Pestañas -->
+      <app-segmented-control
+        [value]="activeTab()"
+        [options]="tabOptions()"
+        (valueChange)="onTabChange($event)"
+      />
+    </div>
+  </div>
+
+  <!-- PESTAÑA 1: TURNO ACTUAL -->
+  @if (activeTab() === 'current-shift') {
+
+    @if (isLoadingSession() && !activeShift() && !lastClosedSession()) {
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-14 flex flex-col items-center justify-center gap-3 shadow-2xs">
+        <i class="pi pi-spin pi-spinner text-primary text-2xl"></i>
+        <p class="text-xs text-slate-400 font-medium">Verificando estado de la caja...</p>
+      </div>
+    } @else {
+      
+      <!-- 1. Turno Activo en Curso -->
+      @if (activeShift()) {
+        <app-cash-active-shift
+          [session]="activeShift()!"
+          [elapsedTime]="elapsedTime()"
+          [isClosing]="isSubmitting()"
+          [errorMessage]="closeError()"
+          (onGoToSales)="goToSales()"
+          (onClose)="onClose($event)"
+        />
+      }
+
+      <!-- 2. Resumen Recién Cerrado -->
+      @else if (lastClosedSession()) {
+        <app-cash-closed-summary
+          [session]="lastClosedSession()!"
+          (onNewShift)="onNewShift()"
+          (onViewHistory)="onTabChange('history')"
+        />
+      }
+
+      <!-- 3. Sin Turno Activo: Formulario de Apertura -->
+      @else {
+        <app-cash-open-card
+          [isLoading]="isSubmitting()"
+          [errorMessage]="openError()"
+          (onOpen)="onOpen($event)"
+        />
+      }
+    }
+  }
+
+  <!-- PESTAÑA 2: HISTORIAL -->
+  @if (activeTab() === 'history') {
+
+    @if (isLoadingHistory()) {
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-14 flex flex-col items-center justify-center gap-3 shadow-2xs">
+        <i class="pi pi-spin pi-spinner text-primary text-2xl"></i>
+        <p class="text-xs text-slate-400 font-medium">Cargando registros históricos...</p>
+      </div>
+    } @else {
+      <app-cash-history-table
+        [title]="userRole() === 'Admin' ? 'Historial General de Turnos' : 'Mi Historial de Cajas'"
+        [subtitle]="userRole() === 'Admin'
+          ? 'Auditoría completa de aperturas y cierres de todos los cajeros'
+          : 'Registro de tus aperturas y cierres de caja'"
+        [showUserColumn]="userRole() === 'Admin'"
+        [records]="historyRecords()"
+      />
+    }
+  }
+
+</div>

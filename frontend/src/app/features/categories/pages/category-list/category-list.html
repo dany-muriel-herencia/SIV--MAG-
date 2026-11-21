@@ -1,0 +1,61 @@
+<div class="space-y-4">
+  <!-- Header -->
+  <app-page-header title="Categorías" subtitle="Administra las categorías de tus productos.">
+    @if (auth.isAdmin()) {
+      <button
+        (click)="newCategory()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-xs sm:text-sm font-semibold rounded-xl transition-all duration-150 shadow-xs cursor-pointer shrink-0"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        <span>Nueva categoría</span>
+      </button>
+    }
+  </app-page-header>
+
+  <!-- Filtros -->
+  <app-category-filters
+    [search]="search()"
+    [statusFilter]="filterActive()"
+    [totalCount]="totalCount()"
+    [activesCount]="activesCount()"
+    [inactivesCount]="inactivesCount()"
+    (searchChange)="onSearch($event)"
+    (statusFilterChange)="onActiveFilter($event)"
+  />
+
+  <!-- Mensaje de Error -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2">
+      <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Contenedor Principal de la Tabla -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
+    @if (isLoading()) {
+      <app-table-skeleton [rows]="5" />
+    } @else {
+      <app-category-table
+        [categories]="categories()"
+        [isSearching]="isSearching()"
+        (toggleActive)="onToggleActive($event)"
+        (openCategory)="onOpenClick($event)"
+      />
+    }
+
+    <!-- Paginación -->
+    @if (!isLoading() && totalPages() > 1) {
+      <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3">
+        <app-pagination
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalCount]="totalCount()"
+          [pageSize]="pageSize"
+          itemLabel="categorías"
+          (pageChange)="onPageChange($event)"
+        />
+      </div>
+    }
+  </div>
+</div>

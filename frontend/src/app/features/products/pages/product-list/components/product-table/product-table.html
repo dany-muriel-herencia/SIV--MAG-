@@ -1,0 +1,101 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left border-collapse min-w-[850px]">
+    <thead>
+      <tr class="bg-slate-50 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+        <th scope="col" class="py-3 px-6 w-3/12">Producto</th>
+        <th scope="col" class="py-3 px-4 w-2/12">Categoría</th>
+        <th scope="col" class="py-3 px-4 w-2/12">Proveedor</th>
+        <th scope="col" class="py-3 px-4 text-right w-1/12">Stock</th>
+        <th scope="col" class="py-3 px-4 text-right w-2/12">Precio venta</th>
+        <th scope="col" class="py-3 px-4 text-right w-1/12">Margen</th>
+        <th scope="col" class="py-3 px-4 text-center w-1/12">Estado</th>
+        <th scope="col" class="py-3 px-4 text-right w-1/12"><span class="sr-only">Acciones</span></th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-slate-50">
+      @if (products().length === 0) {
+        <tr>
+          <td colspan="8" class="py-16 text-center text-slate-300">
+            <div class="flex flex-col items-center justify-center">
+              <i class="pi pi-box text-4xl mb-3"></i>
+              <p class="text-sm font-medium text-slate-400">No se encontraron productos</p>
+            </div>
+          </td>
+        </tr>
+      }
+
+      @for (product of products(); track product.id) {
+        <tr 
+          (click)="onRowClick(product.id)"
+          class="hover:bg-slate-50/80 cursor-pointer transition-colors group">
+
+          <td class="py-3.5 px-6">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                <i class="pi pi-box text-slate-400 text-xs"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-slate-700 truncate">{{ product.name }}</p>
+                <p class="text-xs text-slate-400 font-mono">{{ product.sku }}</p>
+              </div>
+            </div>
+          </td>
+
+          <td class="py-3.5 px-4">
+            <span class="inline-block text-xs px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium truncate max-w-[140px]">
+              {{ product.categoryName }}
+            </span>
+          </td>
+
+          <td class="py-3.5 px-4">
+            <span class="inline-block text-xs px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full font-medium truncate max-w-[140px]">
+              {{ product.supplierName ?? 'Sin proveedor' }}
+            </span>
+          </td>
+
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <span [class]="getStockClass(product)" class="font-medium text-sm">
+              {{ product.stock }}
+            </span>
+            @if (getStockBadge(product)) {
+              <span class="block text-[11px] font-medium leading-tight"
+                    [class]="product.isOutOfStock ? 'text-red-500' : 'text-amber-500'">
+                {{ getStockBadge(product) }}
+              </span>
+            }
+          </td>
+
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <p class="text-sm font-medium text-slate-700">S/ {{ product.salePrice | number:'1.2-2' }}</p>
+            <p class="text-[11px] text-slate-400">Costo: S/ {{ product.purchasePrice | number:'1.2-2' }}</p>
+          </td>
+
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <span class="text-sm font-semibold"
+                  [class]="product.marginPercent >= 20 ? 'text-emerald-600' : 'text-slate-600'">
+              {{ product.marginPercent | number:'1.0-1' }}%
+            </span>
+          </td>
+
+          <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <span class="inline-flex items-center text-xs px-2.5 py-0.5 rounded-full font-medium"
+                  [class]="product.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'">
+              {{ product.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <button
+              (click)="onToggleActive(product, $event)"
+              class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-200/60 active:bg-slate-200 transition-all text-slate-400 hover:text-slate-600"
+              [title]="product.isActive ? 'Desactivar' : 'Activar'">
+              <i [class]="'pi ' + (product.isActive ? 'pi-eye-slash' : 'pi-eye') + ' text-xs'"></i>
+            </button>
+          </td>
+
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

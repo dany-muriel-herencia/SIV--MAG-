@@ -1,0 +1,136 @@
+<div class="space-y-6">
+
+  <!-- Header Profesional -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+          {{ greeting() }}, {{ auth.currentUser()?.fullName}}
+        </h1>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200/60">
+          {{ auth.userRole() }}
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1 capitalize">
+        {{ today | date: 'EEEE, d \'de\' MMMM \'de\' yyyy' }} &bull; Panel de control en tiempo real
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2.5 self-start sm:self-auto">
+      <button
+        type="button"
+        (click)="refresh()"
+        [disabled]="isFetching()"
+        class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+        title="Sincronizar datos"
+      >
+        <i class="pi pi-refresh text-xs" [class.pi-spin]="isFetching()"></i>
+        <span>Sincronizar</span>
+      </button>
+
+      @if (auth.isAdmin()) {
+        <button
+          type="button"
+          (click)="navigateTo('/reports')"
+          class="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold text-white bg-primary hover:bg-primary-hover transition-all shadow-2xs cursor-pointer"
+        >
+          <i class="pi pi-chart-line text-xs"></i>
+          <span>Reportes Avanzados</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Mensaje de Error global -->
+  @if (error()) {
+    <div class="bg-danger-bg border border-rose-200/60 rounded-2xl p-4 text-danger text-xs sm:text-sm flex items-center justify-between shadow-2xs">
+      <div class="flex items-center gap-2.5">
+        <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+        <span>{{ error() }}</span>
+      </div>
+      <button 
+        type="button" 
+        (click)="refresh()"
+        class="underline font-semibold cursor-pointer hover:opacity-80"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- REJILLA DE KPIs PRINCIPALES (4 Tarjetas) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    
+    <!-- KPI 1: Ingresos de Hoy -->
+    <app-stat-card
+      title="Ventas de Hoy"
+      [value]="'S/ ' + (todayRevenue() | number: '1.2-2')"
+      [subtitle]="todaySalesCount() + ' transacciones registradas'"
+      icon="pi pi-wallet"
+      colorScheme="emerald"
+      [isLoading]="isLoading()"
+      (cardClick)="navigateTo('/sales')"
+    />
+
+    <!-- KPI 2: Cuentas por Cobrar (Deuda) -->
+    <app-stat-card
+      title="Por Cobrar (Fiados)"
+      [value]="'S/ ' + (totalDebt() | number: '1.2-2')"
+      [subtitle]="customersWithDebtCount() + ' clientes con saldo pendiente'"
+      icon="pi pi-users"
+      colorScheme="amber"
+      [isLoading]="isLoading()"
+      (cardClick)="navigateTo('/customers')"
+    />
+
+    <!-- KPI 3: Alertas de Stock -->
+    <app-stat-card
+      title="Alertas de Inventario"
+      [value]="(lowStockCount() + outOfStockCount()).toString()"
+      [subtitle]="outOfStockCount() + ' agotados &bull; ' + lowStockCount() + ' stock bajo'"
+      icon="pi pi-box"
+      colorScheme="rose"
+      [isLoading]="isLoading()"
+      (cardClick)="navigateTo('/products')"
+    />
+
+    <!-- KPI 4: Notificaciones Sin Leer -->
+    <app-stat-card
+      title="Alertas del Sistema"
+      [value]="unreadAlertsCount().toString()"
+      [subtitle]="'Notificaciones de eventos críticos'"
+      icon="pi pi-bell"
+      colorScheme="slate"
+      [isLoading]="isLoading()"
+      (cardClick)="navigateTo('/alerts')"
+    />
+
+  </div>
+
+  <!-- SECCIÓN CENTRAL: TOP PRODUCTOS + WIDGET CAJA -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Columna Izquierda: Top Productos más Vendidos (2 cols) -->
+    <div class="lg:col-span-2">
+      <app-top-products-card
+        [products]="topProducts()"
+        [isLoading]="isTopProductsLoading()"
+        [isAdmin]="auth.isAdmin()"
+        (viewAll)="navigateTo('/products')"
+      />
+    </div>
+
+    <!-- Columna Derecha: Widget de Estado de Turno / Acciones (1 col) -->
+    <div class="space-y-6">
+      <app-shift-widget (goToShift)="navigateTo('/cash-register')" />
+      <app-quick-actions-card (navigate)="navigateTo($event)" />
+    </div>
+
+  </div>
+
+  <!-- Banner de Compras Pendientes -->
+  @if (auth.isAdmin()) {
+    <app-pending-purchases-banner (navigate)="navigateTo('/purchases')" />
+  }
+
+</div>

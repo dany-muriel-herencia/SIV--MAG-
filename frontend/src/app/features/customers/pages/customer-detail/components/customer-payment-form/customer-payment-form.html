@@ -1,0 +1,118 @@
+<div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm space-y-4">
+  <div class="flex items-center justify-between">
+    <h3 class="text-sm font-semibold text-slate-800 uppercase tracking-wider">
+      Registrar Abono
+    </h3>
+    <i class="pi pi-wallet text-slate-400"></i>
+  </div>
+
+  @if (currentDebt() <= 0) {
+    <div
+      class="bg-emerald-50 border border-emerald-100 rounded-lg p-5 text-center space-y-2"
+    >
+      <i class="pi pi-check-circle text-emerald-600 text-3xl"></i>
+      <p class="text-sm font-medium text-emerald-800">Al día con sus pagos</p>
+      <p class="text-xs text-emerald-500">Este cliente no registra deuda pendiente.</p>
+    </div>
+  } @else {
+    <form (submit)="onSubmit(); $event.preventDefault()" class="space-y-4">
+      <!-- Mensaje de Éxito o Error -->
+      @if (paymentSuccess()) {
+        <div
+          class="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-emerald-600 text-xs flex items-center gap-2"
+        >
+          <i class="pi pi-check-circle text-base shrink-0"></i>
+          <span>{{ paymentSuccess() }}</span>
+        </div>
+      }
+      @if (paymentError()) {
+        <div
+          class="bg-red-50 border border-red-100 rounded-lg p-3 text-red-600 text-xs flex items-center gap-2"
+        >
+          <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+          <span>{{ paymentError() }}</span>
+        </div>
+      }
+
+      <!-- Monto -->
+      <div class="space-y-1.5">
+        <label
+          for="paymentAmount"
+          class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+          >Monto a abonar *</label
+        >
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"
+            >S/</span
+          >
+          <input
+            id="paymentAmount"
+            type="number"
+            [ngModel]="paymentAmount()"
+            (ngModelChange)="paymentAmount.set($event)"
+            name="paymentAmount"
+            placeholder="0.00"
+            min="0.01"
+            [max]="currentDebt()"
+            step="0.01"
+            class="w-full pl-8 pr-3.5 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            required
+          />
+        </div>
+        <p class="text-[10px] text-slate-400">
+          Abono máximo: S/ {{ currentDebt() | number: '1.2-2' }}
+        </p>
+      </div>
+
+      <!-- Tipo de Pago -->
+      <div class="space-y-1.5">
+        <label
+          for="paymentType"
+          class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+          >Tipo de Pago *</label
+        >
+        <app-selector
+          [placeholder]="'Seleccionar forma de pago'"
+          [options]="paymentOptions"
+          [ngModel]="paymentType()"
+          (ngModelChange)="paymentType.set($event)"
+          [disabled]="isSaving()"
+          [icon]="'pi pi-wallet'"
+          labelKey="label"
+          trackByKey="value"
+        >
+        </app-selector>
+      </div>
+
+      <!-- Notas -->
+      <div class="space-y-1.5">
+        <label
+          for="paymentNotes"
+          class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+          >Notas / Observaciones</label
+        >
+        <textarea
+          id="paymentNotes"
+          [ngModel]="paymentNotes()"
+          (ngModelChange)="paymentNotes.set($event)"
+          name="paymentNotes"
+          placeholder="Ej. Pago en efectivo por Juan"
+          rows="2"
+          class="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Registrar -->
+      <button
+        type="submit"
+        [disabled]="!isPaymentFormValid() || isSaving()"
+        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+      >
+        @if (isSaving()) {
+          <i class="pi pi-spin pi-spinner text-xs"></i>
+        }
+        Registrar Pago
+      </button>
+    </form>
+  }
+</div>

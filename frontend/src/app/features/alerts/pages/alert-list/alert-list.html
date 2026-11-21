@@ -1,0 +1,52 @@
+<div class="space-y-4">
+  <app-alert-filters
+    [currentType]="filterType()"
+    [currentIsRead]="filterIsRead()"
+    (filterType)="onFilterTypeChange($event)"
+    (filterIsRead)="onFilterIsReadChange($event)"
+  ></app-alert-filters>
+
+  <!-- Error -->
+  @if (error()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <div class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
+    @if (isLoading()) {
+      <app-table-skeleton [rows]="5"></app-table-skeleton>
+    } @else {
+      <app-alert-table
+        [alerts]="alerts()"
+        [isPending]="isPending()"
+        (markAsRead)="markAsRead($event)"
+        (markAsUnread)="markAsUnread($event)"
+      ></app-alert-table>
+      <div
+        class="border-t border-slate-100 bg-white px-4 py-3 flex items-center justify-between sm:px-6"
+      >
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-slate-500">
+              Total
+              <span class="font-medium">{{ totalCount() }}</span>
+              resultados
+            </p>
+          </div>
+          <app-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            [totalCount]="totalCount()"
+            [pageSize]="pageSize"
+            itemLabel="alertas"
+            (pageChange)="onPageChange($event)"
+          ></app-pagination>
+        </div>
+      </div>
+    }
+  </div>
+</div>

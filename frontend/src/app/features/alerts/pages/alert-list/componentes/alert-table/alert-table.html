@@ -1,0 +1,102 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left border-collapse min-w-[850px]">
+    <!-- Encabezados -->
+    <thead>
+      <tr
+        class="bg-slate-50 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100"
+      >
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Mensaje</th>
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Tipo</th>
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Referencia</th>
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Fecha</th>
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Estado</th>
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Acciones</th>
+      </tr>
+    </thead>
+
+    <!-- Cuerpo -->
+    <tbody class="divide-y divide-slate-50">
+      @if (alerts().length === 0) {
+        <tr>
+          <td colspan="8" class="py-16 text-center text-slate-300">
+            <div class="flex flex-col items-center justify-center">
+              <i class="pi pi-bell text-4xl mb-3"></i>
+              <p class="text-sm font-medium text-slate-400">No se encontraron alertas</p>
+            </div>
+          </td>
+        </tr>
+      }
+
+      @for (alert of alerts(); track alert.id) {
+        <tr class="hover:bg-slate-50/80 cursor-pointer transition-colors group">
+          <td class="py-3.5 px-6">
+            <div class="flex items-center gap-3 min-w-0">
+              <div
+                class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"
+              >
+                <i class="pi pi-box text-slate-400 text-xs"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-slate-700 truncate">
+                  {{ alert.message }}
+                </p>
+              </div>
+            </div>
+          </td>
+
+          <td class="py-3.5 px-4 text-center">
+            @let config = getAlertTypeText(alert.type);
+            <app-badge [label]="config.label" [class]="config.class" />
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            <span class="text-sm">
+              {{ alert.referenceType }}
+            </span>
+          </td>
+
+          <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <span class="px-3 py-1.5 rounded-full text-xs transition-colors">
+              {{ alert.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+          </td>
+
+          <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <app-badge
+              [label]="getReadText(alert.isRead).label"
+              [class]="getReadText(alert.isRead).class"
+            />
+          </td>
+
+          <td class="py-3 px-4 text-center align-middle">
+            <div class="flex items-center justify-center">
+              <button
+                type="button"
+                (click)="toggleReadStatus(alert)"
+                [title]="alert.isRead ? 'Marcar como no leída' : 'Marcar como leída'"
+                [attr.aria-label]="alert.isRead ? 'Marcar como no leída' : 'Marcar como leída'"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs group focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                [class]="
+                  alert.isRead
+                    ? 'bg-slate-100 hover:bg-slate-200/80 text-slate-600 border border-slate-200/80'
+                    : 'bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20'
+                "
+              >
+                @if (alert.isRead) {
+                  <i
+                    class="pi pi-envelope-open text-[11px] transition-transform group-hover:scale-110"
+                  ></i>
+                  <span>Marcar no leída</span>
+                } @else {
+                  <i
+                    class="pi pi-envelope text-[11px] transition-transform group-hover:scale-110"
+                  ></i>
+                  <span>Marcar leída</span>
+                }
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

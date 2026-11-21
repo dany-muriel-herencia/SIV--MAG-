@@ -1,0 +1,101 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left border-collapse min-w-[700px]">
+    <!-- Encabezados -->
+    <thead>
+      <tr class="bg-slate-50 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+        <th scope="col" class="py-3 px-4 w-4/12">Categoría</th>
+        <th scope="col" class="py-3 px-4 text-left w-4/12">Descripción</th>
+        <th scope="col" class="py-3 px-4 text-center w-2/12">Productos</th>
+        <th scope="col" class="py-3 px-4 text-center w-1/12">Estado</th>
+        <th scope="col" class="py-3 px-4 text-right w-1/12">Acciones</th>
+      </tr>
+    </thead>
+
+    <!-- Cuerpo -->
+    <tbody class="divide-y divide-slate-100">
+      @if (categories().length === 0) {
+        <tr>
+          <!-- CORREGIDO: colspan="5" en lugar de 8 -->
+          <td colspan="5" class="py-12 text-center text-slate-400">
+            <div class="flex flex-col items-center justify-center gap-2">
+              <i class="pi pi-box text-3xl text-slate-300"></i>
+              <p class="text-sm font-medium">No se encontraron categorías</p>
+            </div>
+          </td>
+        </tr>
+      }
+
+      @for (category of categories(); track category.id) {
+        <tr
+          (click)="onOpenClick(category.id)"
+          class="hover:bg-slate-50/80 cursor-pointer transition-colors group"
+        >
+          <!-- Nombre de Categoría -->
+          <td class="py-3.5 px-4">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-lg bg-slate-100/80 flex items-center justify-center shrink-0 border border-slate-200/50">
+                <i class="pi pi-folder text-slate-500 text-xs"></i>
+              </div>
+              <p class="text-sm font-semibold text-slate-800 truncate">
+                {{ category.name }}
+              </p>
+            </div>
+          </td>
+
+          <!-- Descripción (CORREGIDO: texto neutro y legible) -->
+          <td class="py-3.5 px-4 text-left">
+            <p class="text-xs text-slate-500 truncate max-w-xs">
+              {{ category.description || 'Sin descripción' }}
+            </p>
+          </td>
+
+          <!-- Cantidad de Productos -->
+          <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700">
+              {{ category.productsCount }}
+            </span>
+          </td>
+
+          <!-- Estado -->
+          <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <span
+              class="inline-flex items-center text-xs px-2.5 py-0.5 rounded-full font-medium"
+              [class]="category.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-slate-100 text-slate-500 border border-slate-200/60'"
+            >
+              {{ category.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+
+          <!-- Acciones -->
+          <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <div class="flex items-center justify-end gap-1.5" (click)="$event.stopPropagation()">
+              @if (auth.isAdmin()) {
+                <button
+                  (click)="onOpenClick(category.id)"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-lg transition-colors border border-slate-200 shadow-2xs cursor-pointer"
+                  title="Editar Datos"
+                >
+                  <i class="pi pi-pencil text-[11px] text-slate-500"></i>
+                  <span>Editar</span>
+                </button>
+
+                <button
+                  (click)="onToggleActive(category.id, $event)"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-colors border shadow-2xs cursor-pointer"
+                  [class]="category.isActive
+                    ? 'text-rose-700 bg-rose-50/80 hover:bg-rose-100/80 border-rose-200/60'
+                    : 'text-emerald-700 bg-emerald-50/80 hover:bg-emerald-100/80 border-emerald-200/60'"
+                >
+                  <i [class]="'pi ' + (category.isActive ? 'pi-ban' : 'pi-check') + ' text-[11px]'"></i>
+                  <span>{{ category.isActive ? 'Desactivar' : 'Activar' }}</span>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

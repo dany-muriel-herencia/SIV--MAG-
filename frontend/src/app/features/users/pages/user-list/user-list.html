@@ -1,0 +1,80 @@
+<div class="max-w-7xl mx-auto space-y-6">
+  @if (error()) {
+    <div
+      class="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50/90 border border-red-200/80 text-red-700 text-sm animate-in fade-in slide-in-from-top-2 duration-200"
+    >
+      <i class="pi pi-exclamation-circle text-red-500 text-base shrink-0"></i>
+      <span class="font-medium">{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Header Principal -->
+  <app-page-header
+    title="Usuarios"
+    subtitle="Administra las cuentas de usuario, roles y permisos de acceso al sistema."
+  >
+    @if (isAdmin) {
+      <button
+        (click)="newUser()"
+        type="button"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-xs hover:shadow focus:outline-none focus:ring-2 focus:ring-slate-900/20 shrink-0"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        <span>Nuevo Usuario</span>
+      </button>
+    }
+  </app-page-header>
+
+  <app-metric-cards
+    [title]="'Usuarios'"
+    [totalCount]="totalCount()"
+    [activesCount]="activesCount()"
+    [inactivesCount]="inactivesCount()"
+  />
+
+  <!-- Toolbar de Filtros -->
+  <app-user-filters
+    [search]="search()"
+    [selectedStatus]="filterActive()"
+    [selectedRole]="filterRole()"
+    (searchChange)="onSearch($event)"
+    (statusChange)="onActiveFilter($event)"
+    (roleChange)="onRoleFilter($event)"
+  />
+
+  <!-- Contenedor Tabla -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs relative">
+    @if (isLoading()) {
+      <app-table-skeleton [rows]="5" />
+    } @else {
+      <app-user-table
+        [users]="paginatedUsers()"
+        [isRefetching]="isRefetching()"
+        [isAdmin]="isAdmin"
+        (openUser)="openUser($event)"
+        (editUser)="editUser($event)"
+        (toggleActive)="toggleActive($event)"
+      />
+    }
+
+    <!-- Footer Paginación -->
+    @if (!isLoading()) {
+      <div
+        class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/40 flex flex-col sm:flex-row items-center justify-between gap-3"
+      >
+        <span class="text-xs font-medium text-slate-500">
+          Mostrando <span class="text-slate-900 font-semibold">{{ paginatedUsers().length }}</span> de
+          <span class="text-slate-900 font-semibold">{{ totalCount() }}</span> usuarios
+        </span>
+        <app-pagination
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalCount]="totalCount()"
+          [pageSize]="pageSize"
+          itemLabel="usuarios"
+          (pageChange)="onPageChange($event)"
+        />
+      </div>
+    }
+  </div>
+</div>

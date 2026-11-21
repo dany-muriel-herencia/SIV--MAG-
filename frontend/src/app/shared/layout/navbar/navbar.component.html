@@ -1,0 +1,81 @@
+<!-- navbar.component.html -->
+<header class="h-14 bg-white border-b border-slate-100
+               flex items-center px-4 gap-4 shrink-0">
+
+  <!-- Toggle sidebar -->
+  <button
+    (click)="onToggleSidebar()"
+    class="w-8 h-8 flex items-center justify-center rounded-lg
+           text-slate-500 hover:bg-slate-100 hover:text-slate-700
+           transition-colors">
+    <i class="pi pi-bars text-sm"></i>
+  </button>
+
+  <!-- Spacer -->
+  <div class="flex-1"></div>
+
+  <!-- Alertas -->
+  <button
+    (click)="navigateTo('/alerts')"
+    class="relative w-8 h-8 flex items-center justify-center rounded-lg
+           text-slate-500 hover:bg-slate-100 hover:text-slate-700
+           transition-colors">
+    <i class="pi pi-bell text-sm"></i>
+    @if (unreadCount() > 0) {
+      <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full
+                   bg-red-500 text-white text-xs flex items-center
+                   justify-center font-medium leading-none">
+        {{ unreadCount() > 9 ? '9+' : unreadCount() }}
+      </span>
+    }
+  </button>
+
+  <!-- User menu -->
+  <div class="relative">
+    <button
+      (click)="toggleUserMenu()"
+      class="flex items-center gap-2 px-3 py-1.5 rounded-lg
+             hover:bg-slate-100 transition-colors">
+      <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center
+                  justify-center">
+        <i class="pi pi-user text-blue-600 text-xs"></i>
+      </div>
+      <div class="hidden sm:block text-left">
+        <p class="text-xs font-medium text-slate-700 leading-none">
+          {{ auth.currentUser()?.fullName }}
+        </p>
+        <p class="text-xs text-slate-400 mt-0.5">
+          {{ auth.currentUser()?.role }}
+        </p>
+      </div>
+      <i class="pi pi-chevron-down text-xs text-slate-400"></i>
+    </button>
+
+    <!-- Dropdown -->
+    @if (showUserMenu()) {
+      <div class="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl
+                  shadow-lg border border-slate-100 py-1 z-50">
+
+        <button
+          (click)="navigateTo('/change-password')"
+          class="w-full flex items-center gap-2 px-4 py-2 text-sm
+                 text-slate-600 hover:bg-slate-50 transition-colors">
+          <i class="pi pi-lock text-slate-400"></i>
+          Cambiar contraseña
+        </button>
+
+        <div class="border-t border-slate-100 my-1"></div>
+
+        <button
+          (click)="onLogout()"
+          class="w-full flex items-center gap-2 px-4 py-2 text-sm
+                 text-red-500 hover:bg-red-50 transition-colors">
+          <i class="pi pi-sign-out"></i>
+          Cerrar sesión
+        </button>
+
+      </div>
+    }
+  </div>
+
+</header>

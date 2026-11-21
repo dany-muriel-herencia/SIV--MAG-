@@ -1,0 +1,127 @@
+<div class="max-w-2xl mx-auto space-y-6">
+  <div class="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 space-y-6 shadow-xs">
+    
+    <!-- Header -->
+    <div class="flex items-start gap-4 pb-5 border-b border-slate-100">
+      <div class="w-12 h-12 rounded-2xl bg-success-bg text-success flex items-center justify-center shrink-0 border border-emerald-200/60">
+        <i class="pi pi-check-circle text-2xl"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-bold text-slate-900 tracking-tight">Turno Cerrado Exitosamente</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200/60 uppercase">
+            Cerrado
+          </span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+          Cajero: <span class="font-semibold text-slate-700">{{ session()?.userFullName || 'Cajero' }}</span> &bull;
+          Apertura: {{ session()?.openedAt | date: 'dd/MM/yyyy HH:mm' }} &bull;
+          Cierre: {{ session()?.closedAt | date: 'HH:mm' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Cuadre de Caja Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
+        <p class="text-[11px] font-medium text-slate-500">Monto Inicial (Base)</p>
+        <p class="text-base font-bold text-slate-800 mt-1">
+          S/ {{ session()?.openingBalance | number: '1.2-2' }}
+        </p>
+      </div>
+
+      <div class="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
+        <p class="text-[11px] font-medium text-slate-500">Esperado en Caja</p>
+        <p class="text-base font-bold text-slate-800 mt-1">
+          S/ {{ session()?.expectedBalance | number: '1.2-2' }}
+        </p>
+      </div>
+
+      <div class="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
+        <p class="text-[11px] font-medium text-slate-500">Monto Declarado</p>
+        <p class="text-base font-bold text-slate-900 mt-1">
+          S/ {{ session()?.closingBalance | number: '1.2-2' }}
+        </p>
+      </div>
+
+      <div
+        class="p-4 rounded-xl border"
+        [class]="
+          (session()?.difference ?? 0) === 0
+            ? 'bg-slate-50/70 border-slate-100 text-slate-800'
+            : (session()?.difference ?? 0) > 0
+            ? 'bg-emerald-50/60 border-emerald-100 text-emerald-800'
+            : 'bg-rose-50/60 border-rose-100 text-rose-800'
+        "
+      >
+        <p class="text-[11px] font-medium text-slate-500">Diferencia</p>
+        <p class="text-base font-bold mt-1">
+          @if ((session()?.difference ?? 0) > 0) { + }
+          S/ {{ session()?.difference | number: '1.2-2' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Resumen de Ventas / Operaciones -->
+    @if (session()?.summary; as s) {
+      <div class="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-2.5">
+        <p class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Desglose de Ventas del Turno</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div>
+            <span class="text-slate-400">Total Transacciones:</span>
+            <p class="font-bold text-slate-800 mt-0.5">{{ s.totalSales }}</p>
+          </div>
+          <div>
+            <span class="text-slate-400">Total Efectivo:</span>
+            <p class="font-bold text-emerald-700 mt-0.5">S/ {{ s.totalCash | number: '1.2-2' }}</p>
+          </div>
+          <div>
+            <span class="text-slate-400">Tarjeta / Yape:</span>
+            <p class="font-bold text-slate-800 mt-0.5">S/ {{ s.totalCard + s.totalTransfer | number: '1.2-2' }}</p>
+          </div>
+          <div>
+            <span class="text-slate-400">Crédito Otorgado:</span>
+            <p class="font-bold text-amber-700 mt-0.5">S/ {{ s.totalCreditIssued | number: '1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Observaciones -->
+    @if (session()?.closingNotes || session()?.openingNotes) {
+      <div class="space-y-2 text-xs">
+        @if (session()?.openingNotes) {
+          <p class="text-slate-500">
+            <span class="font-semibold text-slate-700">Nota apertura:</span> {{ session()?.openingNotes }}
+          </p>
+        }
+        @if (session()?.closingNotes) {
+          <p class="text-slate-500">
+            <span class="font-semibold text-slate-700">Nota cierre:</span> {{ session()?.closingNotes }}
+          </p>
+        }
+      </div>
+    }
+
+    <!-- Botones de Acción -->
+    <div class="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+      <button
+        type="button"
+        (click)="onNewShift.emit()"
+        class="w-full sm:flex-1 h-10 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        <span>Iniciar Nuevo Turno de Caja</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="onViewHistory.emit()"
+        class="w-full sm:w-auto h-10 px-4 bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <i class="pi pi-history text-xs"></i>
+        <span>Ver en Historial</span>
+      </button>
+    </div>
+  </div>
+</div>

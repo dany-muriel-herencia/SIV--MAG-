@@ -1,0 +1,96 @@
+<div class="space-y-6">
+  <!-- Datos de Contacto -->
+  <div class="bg-white rounded-xl border border-slate-100 p-6 shadow-sm space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 shrink-0"
+        >
+          <i class="pi pi-user text-lg"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-semibold text-slate-800">{{ customer().fullName }}</h2>
+          <span
+            class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full font-medium mt-1"
+            [class]="
+              customer().isActive
+                ? 'bg-emerald-50 text-emerald-600'
+                : 'bg-slate-100 text-slate-400'
+            "
+          >
+            {{ customer().isActive ? 'Cuenta Activa' : 'Cuenta Inactiva' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-50 text-sm">
+      <div class="space-y-1">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block"
+          >Teléfono</span
+        >
+        <span class="text-slate-700 font-medium">{{ customer().phone || 'No registrado' }}</span>
+      </div>
+      <div class="space-y-1">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block"
+          >Dirección</span
+        >
+        <span
+          class="text-slate-700 font-medium truncate block"
+          [title]="customer().address || ''"
+        >
+          {{ customer().address || 'No registrada' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado de Crédito y Deuda -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Tarjeta Límite de Crédito -->
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm space-y-2">
+      <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block"
+        >Límite de Crédito</span
+      >
+      <p class="text-2xl font-bold text-slate-800">
+        S/ {{ customer().creditLimit | number: '1.2-2' }}
+      </p>
+    </div>
+
+    <!-- Tarjeta Deuda Actual -->
+    <div
+      class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm space-y-2 relative overflow-hidden"
+    >
+      <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block"
+        >Deuda Pendiente</span
+      >
+      <p
+        class="text-2xl font-bold"
+        [class]="(customer().currentDebt ?? 0) > 0 ? 'text-amber-600' : 'text-emerald-600'"
+      >
+        S/ {{ customer().currentDebt | number: '1.2-2' }}
+      </p>
+      @if ((customer().currentDebt ?? 0) > 0) {
+        <div class="absolute right-0 bottom-0 top-0 w-1.5 bg-amber-500"></div>
+      } @else {
+        <div class="absolute right-0 bottom-0 top-0 w-1.5 bg-emerald-500"></div>
+      }
+    </div>
+
+    <!-- Tarjeta Crédito Disponible -->
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm space-y-2">
+      <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block"
+        >Crédito Disponible</span
+      >
+      <p class="text-2xl font-bold text-slate-800">
+        S/
+        {{
+          (customer().availableCredit !== undefined
+            ? customer().availableCredit
+            : (customer().creditLimit ?? 0) - (customer().currentDebt ?? 0)
+          ) | number: '1.2-2'
+        }}
+      </p>
+    </div>
+  </div>
+</div>

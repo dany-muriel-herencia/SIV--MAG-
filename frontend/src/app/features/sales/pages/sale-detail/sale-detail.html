@@ -1,0 +1,151 @@
+<div class="max-w-3xl mx-auto space-y-5">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button
+      (click)="goBack()"
+      aria-label="Volver"
+      class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <div class="flex-1">
+      <h1 class="text-xl font-semibold text-slate-800">Detalle de venta</h1>
+      <p class="text-xs text-slate-400">Información completa y comprobante de transacción</p>
+    </div>
+
+    @if (sale()?.status === SaleStatus.Completada) {
+      <button
+        (click)="onCancel()"
+        [disabled]="isCancelling()"
+        class="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200/80 rounded-xl hover:bg-red-100 disabled:opacity-50 transition-colors cursor-pointer"
+      >
+        <i class="pi pi-times text-xs"></i>
+        Cancelar venta
+      </button>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="bg-white rounded-2xl border border-slate-100 p-12 flex flex-col items-center justify-center space-y-3 shadow-sm">
+      <i class="pi pi-spin pi-spinner text-blue-600 text-3xl"></i>
+      <p class="text-xs text-slate-400 font-medium">Cargando detalles de la venta...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2 animate-fade-in">
+      <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (sale(); as s) {
+    <!-- Info general -->
+    <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Número de Ticket</p>
+          <p class="text-xl font-mono font-bold text-slate-800 mt-0.5">
+            {{ s.ticketNumber }}
+          </p>
+        </div>
+        <span
+          class="text-xs px-3 py-1 rounded-full font-medium border"
+          [class]="
+            s.status === SaleStatus.Completada
+              ? 'bg-green-50 text-green-700 border-green-200/60'
+              : 'bg-red-50 text-red-600 border-red-200/60'
+          "
+        >
+          {{ s.status === SaleStatus.Completada ? 'Completada' : 'Cancelada' }}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 text-sm">
+        <div>
+          <p class="text-slate-400 text-xs font-medium">Fecha y hora</p>
+          <p class="text-slate-700 font-medium mt-0.5">
+            {{ s.date | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+        <div>
+          <p class="text-slate-400 text-xs font-medium">Cajero / Vendedor</p>
+          <p class="text-slate-700 font-medium mt-0.5 truncate">{{ s.userFullName }}</p>
+        </div>
+        <div>
+          <p class="text-slate-400 text-xs font-medium">Cliente</p>
+          <p class="text-slate-700 font-medium mt-0.5 truncate">
+            {{ s.customerName ?? 'Sin cliente' }}
+          </p>
+        </div>
+        <div>
+          <p class="text-slate-400 text-xs font-medium">Forma de pago</p>
+          <span
+            class="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium mt-1"
+            [class]="getPaymentClass(s.paymentType)"
+          >
+            {{ getPaymentLabel(s.paymentType) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalle de productos -->
+    <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-slate-700">Productos adquiridos</h2>
+        <span class="text-xs text-slate-400 font-medium">{{ s.details.length }} {{ s.details.length === 1 ? 'producto' : 'productos' }}</span>
+      </div>
+
+      <div class="divide-y divide-slate-50">
+        @for (detail of s.details; track detail.id) {
+          <div class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors">
+            <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+              <i class="pi pi-box text-slate-400 text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-slate-700 truncate">
+                {{ detail.productName }}
+              </p>
+              <p class="text-xs text-slate-400 font-mono">SKU: {{ detail.productSKU }}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <p class="text-xs text-slate-400">
+                {{ detail.quantity }} unids x S/ {{ detail.unitPrice | number: '1.2-2' }}
+              </p>
+              <p class="text-sm font-semibold text-slate-700">
+                S/ {{ detail.subtotal | number: '1.2-2' }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Totales -->
+      <div class="border-t border-slate-100 bg-slate-50/50 p-6 space-y-2.5">
+        <div class="flex justify-between text-sm text-slate-500">
+          <span>Subtotal</span>
+          <span class="font-medium text-slate-700">S/ {{ s.subtotal | number: '1.2-2' }}</span>
+        </div>
+        <div class="flex justify-between text-sm text-slate-500">
+          <span>IGV (18%)</span>
+          <span class="font-medium text-slate-700">S/ {{ s.igv | number: '1.2-2' }}</span>
+        </div>
+        <div
+          class="flex justify-between text-base font-bold text-slate-800 pt-3 border-t border-slate-200"
+        >
+          <span>Total Facturado</span>
+          <span class="text-blue-700 text-lg">S/ {{ s.total | number: '1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Subcomponente Modal de Confirmación para Cancelar Venta -->
+  <app-sale-cancel-modal
+    [isOpen]="showConfirmCancel()"
+    [isCancelling]="isCancelling()"
+    (confirm)="confirmCancel()"
+    (close)="showConfirmCancel.set(false)"
+  />
+</div>

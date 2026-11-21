@@ -1,0 +1,59 @@
+<div class="space-y-4">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-800">Movimientos de stock</h1>
+      <p class="text-sm text-slate-400 mt-0.5">
+        Historial detallado de entradas, salidas y ajustes de inventario
+      </p>
+    </div>
+
+    @if (isAdmin) {
+      <button
+        (click)="openAdjustModal()"
+        class="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-xl shadow-sm transition-all"
+      >
+        <i class="pi pi-sliders-h text-xs"></i>
+        Ajuste manual
+      </button>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <app-movements-filters
+    [selectedProduct]="selectedProduct()"
+    [productResults]="productResults()"
+    [isSearchingProduct]="isSearchingProduct()"
+    (productChange)="onProductChange($event)"
+    (productQueryChange)="onProductQueryChange($event)"
+    [filterType]="filterType()"
+    [fromDate]="fromDate()"
+    [toDate]="toDate()"
+    [hasActiveFilters]="hasActiveFilters()"
+    (typeChange)="onFilterTypeChange($event)"
+    (fromDateChange)="onFilterFromDateChange($event)"
+    (toDateChange)="onFilterToDateChange($event)"
+    (clearFilters)="clearFilters()"
+  />
+
+  <!-- Error -->
+  @if (error()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Tabla -->
+  <app-movements-table
+    [isLoading]="isLoading()"
+    [movements]="movements()"
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    [totalCount]="totalCount()"
+    [pageSize]="pageSize"
+    (onPageChange)="onPageChange($event)"
+  />
+</div>

@@ -1,0 +1,74 @@
+<div class="max-w-2xl mx-auto space-y-4">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button
+      (click)="goBack()"
+      class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <div class="flex-1">
+      <h1 class="text-xl font-semibold text-slate-800">Detalle de compra</h1>
+    </div>
+
+    @if (isPending() && isAdmin()) {
+      <button
+        (click)="showReceiveModal.set(true)"
+        [disabled]="receiveMutation.isPending() || cancelMutation.isPending()"
+        class="flex items-center gap-2 px-3 py-2 text-sm text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-50 disabled:opacity-50 transition-colors"
+      >
+        <i class="pi pi-check-circle text-xs"></i>
+        Recibir Mercancía
+      </button>
+
+      <!-- Botón Cancelar -->
+      <button
+        (click)="showConfirmCancel.set(true)"
+        [disabled]="cancelMutation.isPending() || receiveMutation.isPending()"
+        class="flex items-center gap-2 px-3 py-2 text-sm text-red-500 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+      >
+        <i class="pi pi-times text-xs"></i>
+        Cancelar
+      </button>
+    }
+  </div>
+
+  <!-- Error de carga -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Error de acción -->
+  @if (actionError()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ actionError() }}</span>
+    </div>
+  }
+
+  <app-purchase-detail-table [purchase]="purchase()" [isLoading]="isLoading()" />
+
+  <!-- Modal: Confirmar recepción -->
+  @if (showReceiveModal() && purchase()) {
+    <app-receive-purchase-modal
+      [details]="purchase()!.details"
+      [initialInvoiceNumber]="purchase()!.invoiceNumber"
+      [isReceiving]="receiveMutation.isPending()"
+      (confirm)="handleReceive($event)"
+      (cancel)="showReceiveModal.set(false)"
+    />
+  }
+
+  <!-- Modal: Confirmar cancelación -->
+  @if (showConfirmCancel()) {
+    <app-confirm-cancel-modal
+      [isCancelling]="cancelMutation.isPending()"
+      (confirm)="handleCancel()"
+      (cancel)="showConfirmCancel.set(false)"
+    />
+  }
+</div>

@@ -1,0 +1,170 @@
+<div
+  class="overflow-x-auto transition-opacity duration-200"
+  [class.opacity-50]="isRefetching()"
+  [class.pointer-events-none]="isRefetching()"
+>
+  <table class="w-full text-left border-collapse min-w-[950px]">
+    <thead>
+      <tr
+        class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200/80"
+      >
+        <th scope="col" class="py-3 px-6 text-center">Cliente</th>
+        <th scope="col" class="py-3 px-4">Teléfono</th>
+        <th scope="col" class="py-3 px-4">Límite Crédito</th>
+        <th scope="col" class="py-3 px-4">Deuda Actual</th>
+        <th scope="col" class="py-3 px-4">Crédito Dispon.</th>
+        <th scope="col" class="py-3 px-4 text-center">Estado</th>
+        <th scope="col" class="py-3 px-6 text-center">Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-slate-100 text-sm">
+      @if (customers().length === 0) {
+        <tr>
+          <td colspan="7" class="py-16 text-center">
+            <div class="flex flex-col items-center justify-center space-y-3 max-w-xs mx-auto">
+              <div
+                class="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200/60 flex items-center justify-center text-slate-400"
+              >
+                <i class="pi pi-users text-xl"></i>
+              </div>
+              <div class="space-y-1">
+                <p class="text-sm font-semibold text-slate-800">No hay clientes encontrados</p>
+                <p class="text-xs text-slate-400">
+                  Intenta ajustar la búsqueda o los filtros seleccionados.
+                </p>
+              </div>
+            </div>
+          </td>
+        </tr>
+      }
+
+      @for (customer of customers(); track customer.id) {
+        <tr
+          (click)="openCustomerDetail(customer.id)"
+          class="hover:bg-slate-50/70 transition-colors duration-150 cursor-pointer group"
+        >
+          <!-- Cliente -->
+          <td class="py-3.5 px-6">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 border border-slate-200/60 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all duration-200"
+              >
+                {{ customer.fullName.charAt(0).toUpperCase() }}
+              </div>
+              <div class="min-w-0">
+                <p
+                  class="font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors"
+                >
+                  {{ customer.fullName }}
+                </p>
+                <p class="text-xs text-slate-400 truncate">
+                  {{ customer.address || 'Sin dirección' }}
+                </p>
+              </div>
+            </div>
+          </td>
+
+          <!-- Teléfono -->
+          <td class="py-3.5 px-4 whitespace-nowrap text-slate-600 text-xs">
+            {{ customer.phone || '—' }}
+          </td>
+
+          <!-- Límite Crédito -->
+          <td class="py-3.5 px-4 whitespace-nowrap font-medium text-slate-700">
+            S/ {{ customer.creditLimit | number: '1.2-2' }}
+          </td>
+
+          <!-- Deuda Actual -->
+          <td class="py-3.5 px-4 whitespace-nowrap font-semibold">
+            <span
+              [class]="
+                customer.currentDebt > 0
+                  ? 'text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60'
+                  : 'text-slate-500'
+              "
+            >
+              S/ {{ customer.currentDebt | number: '1.2-2' }}
+            </span>
+          </td>
+
+          <!-- Crédito Disponible -->
+          <td class="py-3.5 px-4 whitespace-nowrap text-slate-600 font-medium">
+            S/
+            {{
+              (customer.availableCredit !== undefined
+                ? customer.availableCredit
+                : customer.creditLimit - customer.currentDebt
+              ) | number: '1.2-2'
+            }}
+          </td>
+
+          <!-- Estado -->
+          <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [class]="
+                customer.isActive
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                  : 'bg-slate-100 text-slate-500 border border-slate-200/60'
+              "
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                [class]="customer.isActive ? 'bg-emerald-500' : 'bg-slate-400'"
+              ></span>
+              {{ customer.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+
+          <!-- 🏷️ ACCIONES DECLARATIVAS CON TEXTO E ÍCONO -->
+          <td class="py-3.5 px-6 text-right whitespace-nowrap">
+            <div class="flex items-center justify-end gap-1.5" (click)="$event.stopPropagation()">
+              <!-- Ver Detalle -->
+              <button
+                (click)="openCustomerDetail(customer.id)"
+                type="button"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors border border-slate-200/60"
+                title="Ver Ficha Completa"
+              >
+                <i class="pi pi-eye text-[11px] text-slate-500"></i>
+                <span>Ver</span>
+              </button>
+
+              @if (isAdmin()) {
+                <!-- Editar -->
+                <button
+                  (click)="onEditCustomer(customer.id, $event)"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors border border-slate-200/60"
+                  title="Editar Datos"
+                >
+                  <i class="pi pi-pencil text-[11px] text-slate-500"></i>
+                  <span>Editar</span>
+                </button>
+
+                <!-- Activar / Desactivar -->
+                <button
+                  (click)="onToggleActive(customer.id, $event)"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-colors border"
+                  [class]="
+                    customer.isActive
+                      ? 'text-rose-700 bg-rose-50/80 hover:bg-rose-100/80 border-rose-200/60'
+                      : 'text-emerald-700 bg-emerald-50/80 hover:bg-emerald-100/80 border-emerald-200/60'
+                  "
+                  [title]="customer.isActive ? 'Desactivar cliente' : 'Activar cliente'"
+                >
+                  <i
+                    [class]="'pi ' + (customer.isActive ? 'pi-ban' : 'pi-check') + ' text-[11px]'"
+                  ></i>
+                  <span>{{ customer.isActive ? 'Desactivar' : 'Activar' }}</span>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

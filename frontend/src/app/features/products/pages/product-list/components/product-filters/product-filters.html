@@ -1,0 +1,88 @@
+<div class="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-xs my-4">
+  <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+    <!-- Sección Izquierda: Buscador + Selectores de Filtro -->
+    <div class="flex flex-col sm:flex-row items-center gap-2.5 flex-1">
+      <!-- 1. Buscador (Ocupa el espacio principal) -->
+      <div class="w-full sm:flex-1 min-w-[220px]">
+        <app-search-input
+          [value]="search()"
+          placeholder="Buscar productos por nombre, código..."
+          (search)="searchChange.emit($event)"
+        />
+      </div>
+
+      <!-- 2. Categoría (Sin label superior para alinear la altura) -->
+      <div class="w-full sm:w-48 shrink-0">
+        <app-selector
+          [ngModel]="currentCategory()"
+          (ngModelChange)="onCategoryChange($event)"
+          placeholder="Todas las categorías"
+          icon="pi pi-list"
+          labelKey="name"
+          trackByKey="id"
+          [options]="categories()"
+        />
+      </div>
+
+      <!-- 3. Proveedor (Sin label superior) -->
+      <div class="w-full sm:w-48 shrink-0">
+        <app-selector
+          [ngModel]="currentSupplier()"
+          (ngModelChange)="onSupplierChange($event)"
+          placeholder="Todos los proveedores"
+          icon="pi pi-briefcase"
+          labelKey="name"
+          trackByKey="id"
+          [options]="suppliers()"
+        />
+      </div>
+    </div>
+
+    <!-- Separador en escritorio -->
+    <div class="h-6 w-[1px] bg-slate-200 shrink-0 hidden lg:block"></div>
+
+    <!-- Sección Derecha: Toggles y Acciones -->
+    <div class="flex items-center gap-2.5 overflow-x-auto pb-1 lg:pb-0 shrink-0">
+      <!-- 4. Filtro de Estado (Segmented Control) -->
+      <app-segmented-control
+        [value]="filterActive()"
+        [options]="statusOptions"
+        (valueChange)="activeFilterChange.emit($event)"
+      />
+
+      <!-- 5. Toggle Stock Bajo -->
+      <button
+        type="button"
+        (click)="lowStockChange.emit(!filterLowStock())"
+        [class]="
+          filterLowStock()
+            ? 'bg-amber-500 text-white border-amber-600 shadow-xs shadow-amber-200'
+            : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+        "
+        class="inline-flex items-center gap-2 h-9 px-3.5 text-xs font-medium border rounded-xl transition-all cursor-pointer shrink-0 select-none"
+      >
+        <i class="pi pi-exclamation-triangle text-xs"></i>
+        <span>Stock bajo</span>
+        <span
+          [class]="filterLowStock() ? 'bg-white/30 text-white' : 'bg-slate-200 text-slate-500'"
+          class="px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-colors"
+        >
+          {{ filterLowStock() ? 'ON' : 'OFF' }}
+        </span>
+      </button>
+
+      <!-- 6. Limpiar Filtros -->
+      @if (hasActiveFilters()) {
+        <button
+          type="button"
+          (click)="reset.emit()"
+          title="Limpiar filtros"
+          class="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 rounded-xl transition-all cursor-pointer shrink-0"
+        >
+          <i class="pi pi-filter-slash text-xs"></i>
+          <span class="hidden xl:inline">Limpiar</span>
+        </button>
+      }
+    </div>
+  </div>
+</div>

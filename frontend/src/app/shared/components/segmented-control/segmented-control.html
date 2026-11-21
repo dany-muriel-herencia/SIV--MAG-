@@ -1,0 +1,30 @@
+<div class="inline-flex p-1 bg-slate-100/90 rounded-xl border border-slate-200/70 shrink-0 select-none shadow-inner h-9 items-center">
+  
+  @for (option of options(); track option.label) {
+    <button
+      type="button"
+      (click)="selectOption(option.value)"
+      [class]="'px-3 py-1 text-xs rounded-lg transition-all duration-150 cursor-pointer flex items-center gap-1.5 h-7 ' + getItemClasses(option)"
+    >
+      <!-- Ícono opcional si la opción lo define -->
+      @if (option.icon) {
+        <i [class]="option.icon + ' text-[11px]'"></i>
+      }
+
+      <span>{{ option.label }}</span>
+
+      <!-- Contador opcional -->
+      @if (option.count !== undefined) {
+        <span 
+          [class]="value() === option.value 
+            ? 'bg-slate-100 text-slate-800 font-bold ring-1 ring-slate-200/60' 
+            : 'bg-slate-200/60 text-slate-500'"
+          class="ml-0.5 px-1.5 py-0.2 rounded-md text-[10px] tabular-nums transition-colors"
+        >
+          {{ option.count }}
+        </span>
+      }
+    </button>
+  }
+
+</div>

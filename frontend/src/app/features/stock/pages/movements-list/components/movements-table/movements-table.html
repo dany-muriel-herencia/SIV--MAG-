@@ -1,0 +1,118 @@
+<div class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
+  @if (isLoading()) {
+    <app-table-skeleton [rows]="5" />
+  } @else {
+    <!-- Cabecera -->
+    <div
+      class="grid grid-cols-12 gap-4 px-6 py-3 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100"
+    >
+      <div class="col-span-2">Tipo</div>
+      <div class="col-span-3">Producto</div>
+      <div class="col-span-2">Fecha</div>
+      <div class="col-span-2">Usuario</div>
+      <div class="col-span-1 text-center">Cant.</div>
+      <div class="col-span-2 text-center">Stock</div>
+    </div>
+
+    <!-- Estado Vacío -->
+    @if (movements().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 text-slate-300">
+        <i class="pi pi-chart-bar text-4xl mb-3 text-slate-300"></i>
+        <p class="text-sm font-medium text-slate-500">Sin movimientos registrados</p>
+        <p class="text-xs text-slate-400 mt-1">
+          No hay movimientos que coincidan con los filtros aplicados.
+        </p>
+      </div>
+    }
+
+    <!-- Filas -->
+    @for (mov of movements(); track mov.id) {
+      <div class="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors">
+        <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
+          <!-- Tipo badge -->
+          <div class="col-span-2">
+            @let config = getTypeConfig(mov.type);
+            <span
+              class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg font-medium"
+              [class]="config.class"
+            >
+              <i [class]="'pi ' + config.icon + ' text-xs'"></i>
+              {{ config.label }}
+            </span>
+          </div>
+
+          <!-- Producto -->
+          <div class="col-span-3 min-w-0">
+            <p class="text-sm font-semibold text-slate-700 truncate" [title]="mov.productName">
+              {{ mov.productName }}
+            </p>
+            <p class="text-xs text-slate-400 font-mono">SKU: {{ mov.productSKU || '-' }}</p>
+          </div>
+
+          <!-- Fecha -->
+          <div class="col-span-2">
+            <p class="text-sm font-medium text-slate-600">
+              {{ mov.date || mov.createdAt | date: 'dd/MM/yyyy' }}
+            </p>
+            <p class="text-xs text-slate-400">{{ mov.date || mov.createdAt | date: 'HH:mm' }} hs</p>
+          </div>
+
+          <!-- Usuario -->
+          <div class="col-span-2">
+            <p class="text-sm text-slate-600 truncate font-medium" [title]="mov.userFullName">
+              {{ mov.userFullName || 'Sistema' }}
+            </p>
+          </div>
+
+          <!-- Cantidad -->
+          <div class="col-span-1 text-center">
+            <span
+              class="text-sm font-bold px-2 py-0.5 rounded-md"
+              [class]="
+                isEntry(mov.type) ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'
+              "
+            >
+              {{ isEntry(mov.type) ? '+' : '−' }}{{ mov.quantity }}
+            </span>
+          </div>
+
+          <!-- Stock antes → después -->
+          <div class="col-span-2 text-center">
+            <div class="flex items-center justify-center gap-1.5 text-xs">
+              <span class="px-2 py-1 bg-slate-100 text-slate-600 font-medium rounded-md">{{
+                mov.stockBefore
+              }}</span>
+              <i class="pi pi-arrow-right text-[10px] text-slate-400"></i>
+              <span class="px-2 py-1 bg-slate-800 text-white font-bold rounded-md">
+                {{ mov.stockAfter }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivo del movimiento (Agrupado correctamente) -->
+        @if (mov.reason) {
+          <div class="px-6 pb-3 -mt-2">
+            <p
+              class="text-xs text-slate-500 flex items-center gap-1.5 italic bg-slate-50/80 p-2 rounded-lg border border-slate-100/80"
+            >
+              <i class="pi pi-info-circle text-slate-400 text-[11px]"></i>
+              <span class="font-semibold text-slate-500">Motivo:</span>
+              <span class="font-normal text-slate-600">{{ mov.reason }}</span>
+            </p>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Paginación -->
+  <app-pagination
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    [totalCount]="totalCount()"
+    [pageSize]="pageSize()"
+    itemLabel="movimientos"
+    (pageChange)="onPageChange.emit($event)"
+  />
+</div>

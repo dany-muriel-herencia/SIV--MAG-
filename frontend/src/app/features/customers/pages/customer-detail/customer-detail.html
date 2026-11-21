@@ -1,0 +1,134 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button
+      type="button"
+      (click)="goBack()"
+      class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
+      title="Volver"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <div>
+      <h1 class="text-xl font-semibold text-slate-800">Perfil del Cliente</h1>
+      <p class="text-xs text-slate-400 mt-0.5">
+        Consulta la información financiera y el historial de transacciones.
+      </p>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-24 space-y-3">
+      <i class="pi pi-spin pi-spinner text-3xl text-blue-600"></i>
+      <p class="text-sm text-slate-400">Cargando información del cliente...</p>
+    </div>
+  } @else if (customer(); as currentCustomer) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Columna Izquierda: Información del Cliente y Estado Financiero -->
+      <div class="lg:col-span-2">
+        <app-customer-info-card [customer]="currentCustomer" />
+      </div>
+
+      <!-- Columna Derecha: Registrar Pago / Abono (Subcomponente modular) -->
+      <div class="lg:col-span-1">
+        <app-customer-payment-form
+          [customerId]="currentCustomer.id"
+          [currentDebt]="currentCustomer.currentDebt"
+          [isSaving]="isSavingPayment()"
+          [paymentSuccess]="paymentSuccess()"
+          [paymentError]="paymentError()"
+          (submitPayment)="onSubmitPayment($event)"
+        />
+      </div>
+
+      <!-- Fila Inferior: Historiales con Tabs -->
+      <div class="lg:col-span-3 space-y-4">
+        <!-- Navegación de Pestañas -->
+        <div class="flex items-center gap-2 border-b border-slate-200">
+          <button
+            type="button"
+            (click)="setActiveTab('sales')"
+            class="flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer"
+            [class]="
+              activeTab() === 'sales'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+            "
+          >
+            <i class="pi pi-shopping-cart text-xs"></i>
+            <span>Historial de Ventas / Créditos</span>
+            <span
+              class="text-xs px-2 py-0.5 rounded-full"
+              [class]="
+                activeTab() === 'sales'
+                  ? 'bg-blue-100 text-blue-700 font-semibold'
+                  : 'bg-slate-100 text-slate-500'
+              "
+            >
+              {{ salesTotalCount() }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="setActiveTab('payments')"
+            class="flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer"
+            [class]="
+              activeTab() === 'payments'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+            "
+          >
+            <i class="pi pi-receipt text-xs"></i>
+            <span>Historial de Abonos / Pagos</span>
+            <span
+              class="text-xs px-2 py-0.5 rounded-full"
+              [class]="
+                activeTab() === 'payments'
+                  ? 'bg-blue-100 text-blue-700 font-semibold'
+                  : 'bg-slate-100 text-slate-500'
+              "
+            >
+              {{ paymentsTotalCount() }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Contenido de las Pestañas -->
+        @if (activeTab() === 'sales') {
+          <app-customer-sales-history
+            [sales]="sales()"
+            [totalCount]="salesTotalCount()"
+            [totalPages]="salesTotalPages()"
+            [currentPage]="salesPage()"
+            [isLoading]="salesLoading()"
+            (pageChange)="onSalesPageChange($event)"
+            (openSale)="openSale($event)"
+          />
+        } @else {
+          <app-customer-payments-history
+            [payments]="payments()"
+            [totalCount]="paymentsTotalCount()"
+            [totalPages]="paymentsTotalPages()"
+            [currentPage]="paymentsPage()"
+            [isLoading]="paymentsLoading()"
+            [dateFrom]="dateFrom()"
+            [dateTo]="dateTo()"
+            (pageChange)="onPaymentsPageChange($event)"
+            (dateFilterChange)="onPaymentsDateFilter($event)"
+            (clearFilters)="onClearPaymentFilters()"
+          />
+        }
+      </div>
+    </div>
+  }
+</div>

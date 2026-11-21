@@ -1,0 +1,61 @@
+<div class="space-y-4">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button
+      type="button"
+      (click)="goBack()"
+      aria-label="Volver a ventas"
+      class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <div>
+      <h1 class="text-xl font-semibold text-slate-800">Nueva venta</h1>
+      <p class="text-xs text-slate-400">Registra una nueva transacción en el sistema</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- Columna izquierda: Buscador y Carrito de productos -->
+    <div class="lg:col-span-2 space-y-4">
+      <!-- Buscador de productos con TanStack Query y debounce -->
+      <div class="my-4">
+        <app-sale-product-search (productSelected)="onProductSelected($event)" />
+      </div>
+
+      <!-- Tabla y controles del Carrito -->
+      <app-sale-cart-table
+        [items]="cartService.cart()"
+        (updateQuantity)="onUpdateQuantity($event)"
+        (removeItem)="onRemoveItem($event)"
+        (clearCart)="onClearCart()"
+      />
+    </div>
+
+    <!-- Columna derecha: Búsqueda de cliente, pagos y resumen -->
+    <div class="space-y-4">
+      <!-- Selector de cliente con TanStack Query -->
+      <div class="my-4">
+        <app-sale-customer-search
+        [selectedCustomer]="cartService.selectedCustomer()"
+        (customerSelected)="onCustomerSelected($event)"
+        (customerCleared)="onCustomerCleared()"
+      />
+      </div>
+
+      <!-- Métodos de pago, resumen y botón de confirmación -->
+      <app-sale-payment-summary
+        [subtotal]="cartService.subtotal()"
+        [igv]="cartService.igv()"
+        [total]="cartService.total()"
+        [paymentType]="cartService.paymentType()"
+        [hasCustomer]="!!cartService.selectedCustomer()"
+        [isValid]="cartService.isFormValid()"
+        [isSaving]="isSaving()"
+        [errorMessage]="errorMessage()"
+        (paymentTypeChange)="onPaymentTypeChange($event)"
+        (submitSale)="onSubmit()"
+      />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<div class="max-w-2xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <button
+      (click)="goBack()"
+      type="button"
+      class="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-600 transition-all shadow-xs shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-400/20"
+      title="Volver"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+          {{ isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h1>
+        <span
+          class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+          [class]="
+            isEditMode()
+              ? 'bg-amber-50 text-amber-700 border border-amber-200/60'
+              : 'bg-blue-50 text-blue-700 border border-blue-200/60'
+          "
+        >
+          {{ isEditMode() ? 'Edición' : 'Registro' }}
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">
+        {{
+          isEditMode()
+            ? 'Actualiza los datos del usuario en el sistema.'
+            : 'Ingresa la información requerida para registrar un nuevo usuario con acceso al sistema.'
+        }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-8">
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-16 space-y-3">
+        <i class="pi pi-spin pi-spinner text-3xl text-blue-600"></i>
+        <p class="text-sm font-medium text-slate-500">Cargando información del usuario...</p>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Error Banner -->
+        @if (errorMessage()) {
+          <div
+            class="bg-red-50/80 border border-red-200/80 rounded-xl p-4 text-red-700 text-sm flex items-start gap-3"
+          >
+            <i class="pi pi-exclamation-circle text-lg shrink-0 mt-0.5 text-red-500"></i>
+            <div class="flex-1 text-xs sm:text-sm font-medium leading-relaxed">
+              {{ errorMessage() }}
+            </div>
+          </div>
+        }
+
+        <!-- Layout Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Nombre Completo (Full Width) -->
+          <div class="md:col-span-2 space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Nombre Completo <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <i class="pi pi-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                type="text"
+                formControlName="fullName"
+                placeholder="Ej. Juan Pérez"
+                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3"
+                [class]="
+                  isFieldInvalid('fullName')
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                    : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'
+                "
+              />
+            </div>
+            @if (isFieldInvalid('fullName')) {
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                @if (form.get('fullName')?.hasError('required')) {
+                  <span>El nombre completo es obligatorio.</span>
+                } @else if (form.get('fullName')?.hasError('minlength')) {
+                  <span>Debe contener al menos 3 caracteres.</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Nombre de Usuario -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Nombre de Usuario (Login) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold">&#64;</span>
+              <input
+                type="text"
+                formControlName="username"
+                placeholder="juan.perez"
+                class="w-full pl-8 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                [class]="
+                  isFieldInvalid('username')
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                    : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'
+                "
+              />
+            </div>
+            @if (isFieldInvalid('username')) {
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                @if (form.get('username')?.hasError('required')) {
+                  <span>El nombre de usuario es obligatorio.</span>
+                } @else if (form.get('username')?.hasError('minlength')) {
+                  <span>Debe contener al menos 3 caracteres.</span>
+                }
+              </div>
+            } @else if (isEditMode()) {
+              <p class="text-[11px] text-slate-400">El nombre de usuario no se puede modificar.</p>
+            }
+          </div>
+
+          <!-- Rol de Usuario -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Rol de Usuario <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <i class="pi pi-shield absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <select
+                formControlName="role"
+                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3 cursor-pointer"
+                [class]="
+                  isFieldInvalid('role')
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                    : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'
+                "
+              >
+                <option value="Admin">Admin (Control Total)</option>
+                <option value="Cajero">Cajero (Operaciones y Ventas)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Contraseña (Full Width) -->
+          <div class="md:col-span-2 space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Contraseña
+              @if (!isEditMode()) {
+                <span class="text-red-500">*</span>
+              } @else {
+                <span class="text-slate-400 font-normal lowercase ml-1">(opcional para actualizar)</span>
+              }
+            </label>
+            <div class="relative">
+              <i class="pi pi-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="••••••••"
+                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3"
+                [class]="
+                  isPasswordInvalid() && (form.get('password')?.touched || form.get('password')?.dirty)
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                    : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'
+                "
+              />
+            </div>
+            @if (isPasswordInvalid() && (form.get('password')?.touched || form.get('password')?.dirty)) {
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                <span>La contraseña debe contener al menos 6 caracteres.</span>
+              </div>
+            } @else {
+              <p class="text-[11px] text-slate-400">
+                {{ isEditMode() ? 'Deja este campo en blanco para conservar la contraseña actual.' : 'Mínimo 6 caracteres requeridos.' }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="goBack()"
+            [disabled]="isSaving()"
+            class="px-5 py-2.5 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slate-300"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs disabled:active:scale-100 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+          >
+            @if (isSaving()) {
+              <i class="pi pi-spin pi-spinner text-xs"></i>
+            }
+            <span>{{ isEditMode() ? 'Actualizar Usuario' : 'Guardar Usuario' }}</span>
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

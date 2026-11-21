@@ -1,0 +1,105 @@
+<div class="max-w-xl mx-auto">
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-8 space-y-6">
+    
+    <!-- Header -->
+    <div class="flex items-start gap-4 pb-5 border-b border-slate-100">
+      <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0 border border-slate-200/60">
+        <i class="pi pi-lock-open text-lg"></i>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 tracking-tight">Apertura de Turno de Caja</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Ingresa el fondo inicial de efectivo en caja para comenzar a registrar ventas.</p>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="p-3.5 bg-danger-bg border border-rose-200/60 rounded-xl text-danger text-xs flex items-center gap-2.5">
+        <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <div class="space-y-5">
+      <!-- Monto Inicial -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            Monto Inicial en Efectivo (Base)
+          </label>
+          @if (openingBalance() > 0) {
+            <button
+              type="button"
+              (click)="clearBalance()"
+              class="text-[11px] font-medium text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              Limpiar
+            </button>
+          }
+        </div>
+
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-base select-none">
+            S/
+          </span>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            [ngModel]="openingBalance()"
+            (ngModelChange)="openingBalance.set($event)"
+            placeholder="0.00"
+            class="w-full pl-11 pr-4 py-3 text-2xl font-bold text-slate-900 bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 transition-all placeholder:text-slate-300 shadow-2xs"
+          />
+        </div>
+
+        <!-- Presets rápidos -->
+        <div class="flex flex-wrap items-center gap-1.5 mt-3">
+          <span class="text-[11px] text-slate-400 font-medium mr-1">Sumar rápido:</span>
+          @for (preset of presets; track preset) {
+            <button
+              type="button"
+              (click)="addPreset(preset)"
+              class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200/50 rounded-lg transition-all cursor-pointer"
+            >
+              +{{ preset }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+          Observaciones de Apertura <span class="text-slate-400 font-normal lowercase">(opcional)</span>
+        </label>
+        <input
+          type="text"
+          [ngModel]="notes()"
+          (ngModelChange)="notes.set($event)"
+          placeholder="Ej. Billetes de S/ 20 y monedas variadas para cambio"
+          class="w-full h-9 px-3.5 text-xs text-slate-800 bg-slate-50/50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 transition-all placeholder:text-slate-400 shadow-2xs"
+        />
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-2">
+      <button
+        type="button"
+        (click)="submit()"
+        [disabled]="isLoading() || openingBalance() < 0"
+        class="w-full h-10 px-4 bg-primary hover:bg-primary-hover disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+      >
+        @if (isLoading()) {
+          <i class="pi pi-spin pi-spinner text-xs"></i>
+          <span>Abriendo Turno...</span>
+        } @else {
+          <i class="pi pi-play text-xs"></i>
+          <span>Iniciar Turno de Caja (S/ {{ openingBalance() | number: '1.2-2' }})</span>
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

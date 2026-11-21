@@ -1,0 +1,21 @@
+<div class="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-xs my-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+    <!-- Estado -->
+    <app-selector
+      [ngModel]="currentTypeObject()"
+      (ngModelChange)="onFilterTypeChange($event)"
+      [options]="types"
+      labelKey="label"
+      valueKey="value"
+      placeholder="Todos los tipos"
+      icon="pi pi-tag"
+    ></app-selector>
+
+    <!-- Estado -->
+    <app-segmented-control
+      [value]="currentIsRead()"
+      [options]="isReadOptions"
+      (valueChange)="onFilterIsReadChange($event)"
+    />
+  </div>
+</div>

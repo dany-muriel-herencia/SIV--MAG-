@@ -1,0 +1,107 @@
+<div class="space-y-6">
+
+  <!-- Header + Controles -->
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-2 border-b border-slate-200/80">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Reportes y Analítica</h1>
+      <p class="text-xs text-slate-500 mt-1">Consolidado financiero, valoración de almacén y estados de cartera</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+      <button
+        type="button"
+        (click)="refreshCurrentTab()"
+        class="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+        title="Actualizar datos actuales"
+      >
+        <i class="pi pi-refresh text-xs"></i>
+        <span>Sincronizar</span>
+      </button>
+
+      <!-- Selector de Pestaña -->
+      <app-segmented-control
+        [value]="activeTab()"
+        [options]="tabOptions"
+        (valueChange)="setActiveTab($event)"
+      />
+    </div>
+  </div>
+
+  <!-- PESTAÑA 1: VENTAS -->
+  @if (activeTab() === 'sales') {
+    <div class="space-y-5">
+      <!-- Toolbar Filtros -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-calendar text-slate-400 text-xs ml-1"></i>
+          <span class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Período de Análisis:</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            (click)="setPresetDate('today')"
+            class="h-7 px-2.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors cursor-pointer"
+          >
+            Hoy
+          </button>
+          <button
+            type="button"
+            (click)="setPresetDate('this-month')"
+            class="h-7 px-2.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors cursor-pointer"
+          >
+            Este Mes
+          </button>
+          <button
+            type="button"
+            (click)="setPresetDate('last-30-days')"
+            class="h-7 px-2.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors cursor-pointer"
+          >
+            Últimos 30 días
+          </button>
+
+          <div class="h-4 w-[1px] bg-slate-200 hidden sm:block mx-1"></div>
+
+          <div class="flex items-center gap-1.5">
+            <input
+              type="date"
+              [value]="fromDate()"
+              (change)="fromDate.set($any($event.target).value)"
+              class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 shadow-2xs"
+            />
+            <span class="text-xs text-slate-400">a</span>
+            <input
+              type="date"
+              [value]="toDate()"
+              (change)="toDate.set($any($event.target).value)"
+              class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 shadow-2xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      <app-sales-report-tab
+        [salesSummary]="salesSummary()"
+        [topProducts]="topProducts()"
+        [isLoading]="salesLoading()"
+      />
+    </div>
+  }
+
+  <!-- PESTAÑA 2: VALORACIÓN DE STOCK -->
+  @if (activeTab() === 'inventory') {
+    <app-valuation-report-tab
+      [valuation]="valuationData()"
+      [isLoading]="valuationLoading()"
+    />
+  }
+
+  <!-- PESTAÑA 3: CARTERA Y DEUDAS -->
+  @if (activeTab() === 'debts') {
+    <app-debt-report-tab
+      [debtReport]="debtData()"
+      [isLoading]="debtLoading()"
+    />
+  }
+
+</div>

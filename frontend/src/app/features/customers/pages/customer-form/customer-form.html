@@ -1,0 +1,194 @@
+<div class="max-w-2xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex items-center gap-4">
+    <button
+      (click)="goBack()"
+      type="button"
+      class="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-600 transition-all shadow-xs shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-400/20"
+      title="Volver"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <div>
+      <div class="flex items-center gap-2">
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+          {{ isEditMode() ? 'Editar Cliente' : 'Nuevo Cliente' }}
+        </h1>
+        <span
+          class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+          [class]="isEditMode() ? 'bg-amber-50 text-amber-700 border border-amber-200/60' : 'bg-blue-50 text-blue-700 border border-blue-200/60'"
+        >
+          {{ isEditMode() ? 'Edición' : 'Registro' }}
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">
+        {{ isEditMode() ? 'Actualiza los datos del cliente en el catálogo.' : 'Ingresa la información requerida para registrar un nuevo cliente.' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-8">
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-16 space-y-3">
+        <i class="pi pi-spin pi-spinner text-3xl text-blue-600"></i>
+        <p class="text-sm font-medium text-slate-500">Cargando información del cliente...</p>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Error Banner -->
+        @if (errorMessage()) {
+          <div class="bg-red-50/80 border border-red-200/80 rounded-xl p-4 text-red-700 text-sm flex items-start gap-3">
+            <i class="pi pi-exclamation-circle text-lg shrink-0 mt-0.5 text-red-500"></i>
+            <div class="flex-1 text-xs sm:text-sm font-medium leading-relaxed">
+              {{ errorMessage() }}
+            </div>
+          </div>
+        }
+
+        <!-- Layout Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <!-- Nombre Completo (Full Width) -->
+          <div class="md:col-span-2 space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Nombre Completo <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <i class="pi pi-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                type="text"
+                formControlName="fullName"
+                placeholder="Ej. Juan Pérez"
+                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3"
+                [class]="isFieldInvalid('fullName')
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                  : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'"
+              />
+            </div>
+            @if(isFieldInvalid('fullName')){
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                @if(form.get('fullName')?.hasError('required')) {
+                  <span>El nombre es obligatorio.</span>
+                } @else if(form.get('fullName')?.hasError('minlength')) {
+                  <span>Debe contener al menos 3 caracteres.</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Teléfono -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Teléfono 
+            </label>
+            <div class="relative">
+              <i class="pi pi-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                type="text"
+                formControlName="phone"
+                placeholder="Ej. 987654321"
+                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3"
+                [class]="isFieldInvalid('phone')
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                  : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'"
+              />
+            </div>
+            @if(isFieldInvalid('phone')){
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                @if(form.get('phone')?.hasError('minlength')) {
+                  <span>Mínimo 7 dígitos.</span>
+                } @else if(form.get('phone')?.hasError('maxlength')) {
+                  <span>Máximo 15 dígitos.</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Límite de Crédito -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Límite de Crédito 
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 select-none">S/</span>
+              <input
+                type="number"
+                formControlName="creditLimit"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3"
+                [class]="isFieldInvalid('creditLimit')
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                  : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'"
+              />
+            </div>
+            @if(isFieldInvalid('creditLimit')){
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                @if(form.get('creditLimit')?.hasError('required')) {
+                  <span>Este campo es obligatorio.</span>
+                } @else if(form.get('creditLimit')?.hasError('min')) {
+                  <span>Debe ser un valor igual o mayor a 0.</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Dirección (Full Width) -->
+          <div class="md:col-span-2 space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Dirección 
+            </label>
+            <div class="relative">
+              <i class="pi pi-map-marker absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input
+                type="text"
+                formControlName="address"
+                placeholder="Ej. Av. Larco 123, Miraflores"
+                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/50 border rounded-xl text-slate-800 placeholder:text-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-3"
+                [class]="isFieldInvalid('address')
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/15'
+                  : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/15'"
+              />
+            </div>
+            @if(isFieldInvalid('address')){
+              <div class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="pi pi-info-circle text-xs"></i>
+                @if(form.get('address')?.hasError('maxlength')) {
+                  <span>Máximo 50 caracteres.</span>
+                }
+              </div>
+            }
+          </div>
+
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="goBack()"
+            [disabled]="isSaving()"
+            class="px-5 py-2.5 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-slate-300"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xs disabled:active:scale-100 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+          >
+            @if (isSaving()) {
+              <i class="pi pi-spin pi-spinner text-xs"></i>
+            }
+            <span>{{ isEditMode() ? 'Actualizar Cliente' : 'Guardar Cliente' }}</span>
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

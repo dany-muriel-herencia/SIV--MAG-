@@ -1,0 +1,70 @@
+<div class="space-y-4">
+  <!-- Header -->
+  <app-page-header title="Productos" subtitle="Productos de la tienda">
+    @if (auth.isAdmin()) {
+      <button
+        (click)="newProduct()"
+        type="button"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-semibold rounded-xl transition-all duration-150 shadow-xs hover:shadow focus:outline-none focus:ring-2 focus:ring-slate-900/20 shrink-0"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        <span>Nuevo Producto</span>
+      </button>
+    }
+  </app-page-header>
+
+  <!-- Filtros -->
+  <app-product-filters
+    [hasActiveFilters]="hasActiveFilters()"
+    [search]="searchState.search()"
+    [selectedCategory]="selectedCategory()"
+    [selectedSupplier]="selectedSupplier()"
+    [filterActive]="filterActive()"
+    [filterLowStock]="filterLowStock()"
+    [categories]="categories()"
+    [suppliers]="suppliers()"
+    [totalCount]="totalCount()"
+    [activeCount]="activesCount()"
+    [inactiveCount]="inactivesCount()"
+    (searchChange)="searchState.onSearch($event)"
+    (categoryChange)="selectedCategory.set($event)"
+    (supplierChange)="selectedSupplier.set($event)"
+    (activeFilterChange)="filterActive.set($event)"
+    (lowStockChange)="filterLowStock.set($event)"
+    (reset)="resetFilters()"
+  />
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle text-base shrink-0"></i>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Contenedor Principal de la Tabla -->
+  <div class="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
+    <!-- Loading Skeleton -->
+    @if (isLoading()) {
+      <app-table-skeleton [rows]="5" />
+    } @else {
+      <app-product-table
+        [products]="products()"
+        (rowClick)="openProduct($event)"
+        (toggleActive)="onToggleActive($event)"
+      />
+    }
+
+    <!-- Paginación -->
+    <app-pagination
+      [currentPage]="currentPage()"
+      [totalPages]="totalPages()"
+      [totalCount]="totalCount()"
+      [pageSize]="pageSize"
+      itemLabel="productos"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+</div>

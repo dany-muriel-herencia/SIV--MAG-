@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import 'primeicons/primeicons.css';
+
+@theme {
+  /* Marca / Primario (Oscuro consistente como el sidebar y botones principales) */
+  --color-primary: #0f172a;         /* slate-900 */
+  --color-primary-hover: #1e293b;   /* slate-800 */
+  --color-primary-active: #020617;  /* slate-950 */
+
+  /* Colores Secundarios y Neutros */
+  --color-secondary: #64748b;       /* slate-500 */
+  --color-secondary-light: #f8fafc; /* slate-50 */
+
+  /* Estados de Negocio */
+  --color-success: #047857;         /* emerald-700 */
+  --color-success-bg: #ecfdf5;      /* emerald-50 */
+  
+  --color-danger: #be123c;          /* rose-700 */
+  --color-danger-bg: #fff1f2;       /* rose-50 */
+
+  --color-warning: #f59e0b;         /* amber-500 */
+  --color-warning-dark: #b45309;    /* amber-700 */
+  --color-warning-bg: #fffbeb;      /* amber-50 */
+
+  /* Tipografía */
+  --font-sans: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  color: #1e293b;
+  margin: 0;
+}
+
+main {
+  scrollbar-gutter: stable;
+}

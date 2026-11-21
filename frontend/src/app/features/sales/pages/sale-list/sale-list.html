@@ -1,0 +1,92 @@
+<!-- sale-list.component.html -->
+<div class="space-y-4">
+  <!-- Header -->
+  <app-page-header [title]="'Ventas'" [subtitle]="'Encuentra y gestiona tus ventas'">
+    <button
+      (click)="newSale()"
+      class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+    >
+      <i class="pi pi-plus text-xs"></i>
+      Nueva venta
+    </button>
+  </app-page-header>
+
+  @if (showNoShiftModal()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 flex flex-col items-center text-center space-y-4"
+      >
+        <div
+          class="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 border border-amber-100"
+        >
+          <i class="pi pi-exclamation-triangle text-2xl"></i>
+        </div>
+
+        <div class="space-y-1">
+          <h3 class="text-lg font-bold text-slate-800 tracking-tight">Turno de Caja Requerido</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">
+            No tienes un turno de caja abierto actualmente. Debes aperturar caja antes de poder
+            registrar nuevas ventas.
+          </p>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center gap-3 w-full pt-2">
+          <button
+            (click)="closeNoShiftModal()"
+            class="flex-1 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+          >
+            Cancelar
+          </button>
+
+          <button
+            (click)="goToCashRegister()"
+            class="flex-1 px-4 py-2.5 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-sm transition-all flex items-center justify-center gap-2"
+          >
+            <i class="pi pi-wallet text-xs"></i>
+            Ir a Aperturar Caja
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+  <!-- Filtros -->
+  <app-sale-filters
+    [fromDate]="fromDate()"
+    [toDate]="toDate()"
+    [filterStatus]="filterStatus()"
+    (fromDateChange)="fromDate.set($event)"
+    (toDateChange)="toDate.set($event)"
+    (statusChange)="onStatusFilter($event)"
+    [filterCustomer]="filterCustomer()"
+    [filterUser]="filterUser()"
+    (customerChange)="onCustomerFilter($event)"
+    (userChange)="onUserFilter($event)"
+    [customers]="customers()"
+    [users]="users()"
+    [isAdmin]="isAdmin"
+  />
+
+  <app-sale-table
+    [sales]="sales()"
+    [isLoading]="isLoading()"
+    [totalPages]="totalPages()"
+    [totalCount]="totalCount()"
+    [currentPage]="currentPage()"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+    (openSale)="openSale($event)"
+  />
+
+  <!-- Error -->
+  @if (error()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+    </div>
+  }
+</div>

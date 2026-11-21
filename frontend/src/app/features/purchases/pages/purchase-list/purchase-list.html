@@ -1,0 +1,48 @@
+<div class="space-y-4">
+  <!-- Header -->
+  <app-page-header title="Compras" subtitle="Aquí encontrarás todas tus compras en un solo lugar.">
+    @if (isAdmin()) {
+      <button
+        (click)="newPurchase()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-sm self-start sm:self-auto"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        Nueva orden de compra
+      </button>
+    }
+  </app-page-header>
+
+  <app-purchase-filters
+    [fromDate]="fromDate()"
+    [toDate]="toDate()"
+    [selectedStatus]="filterStatus()"
+    (fromDateChange)="onFromDateChange($event)"
+    (toDateChange)="onToDateChange($event)"
+    (statusChange)="onStatusChange($event)"
+    [selectedSupplier]="filterSupplier()"
+    (supplierChange)="onSupplierChange($event)"
+    [suppliers]="suppliers()"
+  />
+
+  <!-- Banner de Error -->
+  @if (error()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-2xl p-4 text-red-700 text-xs font-medium flex items-center gap-3"
+    >
+      <i class="pi pi-exclamation-circle text-base text-red-500 shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Tabla y Paginación -->
+  <app-purchase-table
+    [purchases]="purchases()"
+    [isLoading]="isLoading()"
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    [totalCount]="totalCount()"
+    [pageSize]="pageSize"
+    (rowClick)="openPurchase($event)"
+    (pageChange)="onPageChange($event)"
+  />
+</div>

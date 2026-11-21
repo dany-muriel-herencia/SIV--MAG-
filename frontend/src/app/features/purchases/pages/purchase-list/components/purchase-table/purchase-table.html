@@ -1,0 +1,108 @@
+<div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-2xs">
+  @if (isLoading()) {
+    <app-table-skeleton [rows]="5" />
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse min-w-[760px]">
+        <thead>
+          <tr
+            class="bg-slate-50/60 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100"
+          >
+            <th scope="col" class="py-3 px-6">Comprobante / Registro</th>
+            <th scope="col" class="py-3 px-4">Fecha</th>
+            <th scope="col" class="py-3 px-4">Proveedor</th>
+            <th scope="col" class="py-3 px-4 text-right">Total</th>
+            <th scope="col" class="py-3 px-4 text-center">Estado</th>
+            <th scope="col" class="py-3 px-6 text-right"><span class="sr-only">Acción</span></th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-50 text-slate-600">
+          @if (purchases().length === 0) {
+            <tr>
+              <td colspan="7" class="py-16 text-center">
+                <div class="flex flex-col items-center justify-center text-slate-300">
+                  <i class="pi pi-shopping-bag text-3xl mb-2 text-slate-300"></i>
+                  <p class="text-xs font-medium text-slate-400">
+                    No se encontraron compras en este periodo
+                  </p>
+                </div>
+              </td>
+            </tr>
+          }
+
+          @for (purchase of purchases(); track purchase.id) {
+            <tr
+              (click)="rowClick.emit(purchase.id)"
+              class="hover:bg-slate-50/80 cursor-pointer transition-colors group"
+            >
+              <td class="py-3.5 px-6">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div
+                    class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-blue-50 transition-colors flex items-center justify-center shrink-0"
+                  >
+                    <i
+                      class="pi pi-file-check text-slate-400 group-hover:text-blue-600 text-xs transition-colors"
+                    ></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs font-mono font-bold text-slate-800">
+                      {{ purchase.invoiceNumber || 'SIN-FACTURA' }}
+                    </p>
+                    <p class="text-[11px] text-slate-400 truncate">
+                      {{ purchase.userFullName }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              <td class="py-3.5 px-4 whitespace-nowrap">
+                <p class="text-xs font-medium text-slate-700">
+                  {{ purchase.date | date: 'dd/MM/yyyy' }}
+                </p>
+                <p class="text-[10px] text-slate-400">{{ purchase.date | date: 'HH:mm' }}</p>
+              </td>
+
+              <td class="py-3.5 px-4 text-xs font-medium text-slate-700 truncate max-w-[160px]">
+                {{ purchase.supplierName }}
+              </td>
+
+              <td class="py-3.5 px-4 text-right whitespace-nowrap text-xs font-bold text-slate-800">
+                S/ {{ purchase.total | number: '1.2-2' }}
+              </td>
+
+              <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                @let config = getBadgeConfig(purchase.status);
+                <app-badge [label]="config.label" [class]="config.class" />
+              </td>
+
+              <td class="py-3.5 px-6 text-right whitespace-nowrap">
+                <button
+                  type="button"
+                  (click)="rowClick.emit(purchase.id); $event.stopPropagation()"
+                  class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-all text-slate-400 hover:text-slate-700"
+                  title="Ver detalle de compra"
+                >
+                  <i class="pi pi-chevron-right text-xs"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="border-t border-slate-100 p-2">
+        <app-pagination
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalCount]="totalCount()"
+          [pageSize]="pageSize()"
+          itemLabel="compras"
+          (pageChange)="pageChange.emit($event)"
+        />
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,17 @@
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 my-4">
+  <div class="min-w-0">
+    <h1 class="text-xl font-semibold text-slate-800 tracking-tight truncate">
+      {{ title() }}
+    </h1>
+    @if (subtitle()) {
+      <p class="text-sm text-slate-500 mt-0.5 font-normal">
+        {{ subtitle() }}
+      </p>
+    }
+  </div>
+
+  <!-- Proyecta cualquier botón o combinación de acciones -->
+  <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+    <ng-content />
+  </div>
+</div>

@@ -1,0 +1,155 @@
+<div class="max-w-4xl mx-auto space-y-5">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button
+      (click)="goBack()"
+      class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+    >
+      <i class="pi pi-arrow-left text-sm"></i>
+    </button>
+    <h1 class="text-xl font-semibold text-slate-800">Nueva orden de compra</h1>
+  </div>
+
+  @if (error()) {
+    <div
+      class="bg-red-50 border border-red-100 rounded-xl p-4 text-red-600 text-sm flex items-center gap-2"
+    >
+      <i class="pi pi-exclamation-circle shrink-0"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (zeroCostWarning()) {
+    <div
+      class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-700 text-sm flex items-start gap-2"
+    >
+      <i class="pi pi-info-circle shrink-0 mt-0.5"></i>
+      <div class="flex-1">
+        <span>{{ zeroCostWarning() }}</span>
+        <p class="text-xs text-amber-600 mt-0.5">
+          Corrige el costo unitario en la tabla de la orden antes de registrar.
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="zeroCostWarning.set(null)"
+        class="text-amber-500 hover:text-amber-700 shrink-0"
+        aria-label="Cerrar aviso"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  }
+
+  <div
+    class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm"
+  >
+    <div>
+      <app-selector
+        title="Proveedor"
+        placeholder="Selecciona un proveedor..."
+        labelKey="name"
+        [options]="allSuppliers()"
+        [ngModel]="selectedSupplier()"
+        (ngModelChange)="selectSupplier($event)"
+      />
+    </div>
+
+    <div>
+      <app-selector
+        title="Método de Pago"
+        placeholder="Selecciona un método de pago..."
+        labelKey="label"
+        [options]="paymentTypes()"
+        [ngModel]="paymentType()"
+        (ngModelChange)="paymentType.set($event)"
+      />
+    </div>
+
+    <div>
+      <label class="text-xs font-semibold text-slate-500 block mb-1"
+        >Nº Comprobante / Factura</label
+      >
+      <input
+        type="text"
+        [ngModel]="invoiceNumber()"
+        (ngModelChange)="invoiceNumber.set($event)"
+        placeholder="Ej: F001-00024"
+        class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200/80 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 text-slate-700 font-medium h-[34px]"
+      />
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200/60 p-5 shadow-sm space-y-4">
+    <div class="flex justify-between items-center">
+      <div>
+        <h2 class="text-sm font-semibold text-slate-800">Productos de la Orden</h2>
+        <p class="text-xs text-slate-400">
+          Busca y selecciona los productos para añadirlos al listado inferior.
+        </p>
+      </div>
+      <div>
+        <button
+          type="button"
+          (click)="showCreateProductModal.set(true)"
+          class="px-3 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1 shrink-0"
+        >
+          <i class="pi pi-plus text-xs"></i>
+          Nuevo
+        </button>
+      </div>
+    </div>
+
+    <div class="max-w-xl">
+      <app-autocomplete-input
+        title="Productos"
+        placeholder="Escribe el nombre o código del producto..."
+        labelKey="name"
+        [results]="productResults()"
+        [isSearching]="isSearchingProduct()"
+        [ngModel]="null"
+        (ngModelChange)="selectProduct($event)"
+        (queryChange)="onProductSearch($event)"
+      />
+    </div>
+
+    <app-purchase-cart-table
+      [items]="cart()"
+      [total]="total()"
+      (quantityChange)="updateQuantity($event.productId, $event.quantity)"
+      (unitCostChange)="updateUnitCost($event.productId, $event.unitCost)"
+      (itemRemove)="removeItem($event)"
+    />
+
+    @if (showCreateProductModal()) {
+      <app-create-product-modal
+        [initialName]="productQuery()"
+        (created)="onProductCreated($event)"
+        (cancel)="showCreateProductModal.set(false)"
+      />
+    }
+  </div>
+
+  <!-- Botones de Acción -->
+  <div class="flex gap-3 justify-end">
+    <button
+      type="button"
+      (click)="goBack()"
+      class="px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      (click)="onSubmit()"
+      [disabled]="!isFormValid() || isSaving()"
+      class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+    >
+      @if (isSaving()) {
+        <i class="pi pi-spin pi-spinner text-xs"></i> Guardando...
+      } @else {
+        <i class="pi pi-check text-xs"></i> Registrar orden
+      }
+    </button>
+  </div>
+</div>
