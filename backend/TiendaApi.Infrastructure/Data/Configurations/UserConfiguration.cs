@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -12,9 +12,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
-        // ─── Propiedades ──────────────────────────────────────────────────────
+        // --- Propiedades ------------------------------------------------------
 
         builder.Property(u => u.Username)
             .IsRequired()
@@ -32,7 +32,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(255);
 
-        // Guardamos el enum como string en la DB — más legible que un número
+        // Guardamos el enum como string en la DB � m�s legible que un n�mero
         builder.Property(u => u.Role)
             .IsRequired();
 
@@ -44,7 +44,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.RefreshTokenExpiry);
 
-        // ─── Índices ──────────────────────────────────────────────────────────
+        // --- �ndices ----------------------------------------------------------
 
         builder.HasIndex(u => u.Username)
             .IsUnique()

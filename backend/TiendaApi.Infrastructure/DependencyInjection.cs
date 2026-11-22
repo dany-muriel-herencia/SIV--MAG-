@@ -23,58 +23,72 @@ public static class DependencyInjection
         return services;
     }
 
-    // ─── Base de datos ────────────────────────────────────────────────────────
+    public static string BuildPostgresConnectionString(IConfiguration configuration)
+    {
+        // Prioridad 1: Variables individuales 12-Factor (DB_HOST, DB_PORT, etc.)
+        var host = configuration["DB_HOST"];
+        var port = configuration["DB_PORT"] ?? "5432";
+        var db = configuration["DB_DATABASE"];
+        var user = configuration["DB_USERNAME"];
+        var pass = configuration["DB_PASSWORD"];
+
+        if (!string.IsNullOrWhiteSpace(host) &&
+            !string.IsNullOrWhiteSpace(db) &&
+            !string.IsNullOrWhiteSpace(user) &&
+            !string.IsNullOrWhiteSpace(pass))
+        {
+            return $"Host={host};Port={port};Database={db};Username={user};Password={pass};Include Error Detail=false";
+        }
+
+        // Prioridad 2: ConnectionStrings__DefaultConnection
+        var connString = configuration.GetConnectionString("DefaultConnection");
+        if (!string.IsNullOrWhiteSpace(connString))
+        {
+            return connString;
+        }
+
+        throw new InvalidOperationException(
+            "CONFIG_ERROR: Faltan variables obligatorias de base de datos (DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD o ConnectionStrings__DefaultConnection).");
+    }
 
     private static IServiceCollection AddDatabase(
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var connectionString = BuildPostgresConnectionString(configuration);
+
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
-                sqlOptions =>
+            options.UseNpgsql(
+                connectionString,
+                npgsqlOptions =>
                 {
-                    sqlOptions.EnableRetryOnFailure(
+                    npgsqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
                         maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null
+                        errorCodesToAdd: null
                     );
                 }
             );
         });
 
-        // El seeder se registra como Scoped — una instancia por request
         services.AddScoped<DataSeeder>();
-
         return services;
     }
 
-    // ─── Repositorios ─────────────────────────────────────────────────────────
-
-    private static IServiceCollection AddRepositories(
-        this IServiceCollection services)
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        // UnitOfWork — agrupa todos los repositorios
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         return services;
     }
-
-    // ─── Seguridad ────────────────────────────────────────────────────────────
 
     private static IServiceCollection AddSecurity(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Mapea la sección JwtSettings del appsettings.json
-        // a la clase JwtSettings
-        services.Configure<JwtSettings>(
-            configuration.GetSection("JwtSettings"));
-
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
-
         return services;
     }
 }

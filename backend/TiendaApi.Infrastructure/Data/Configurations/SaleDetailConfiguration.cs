@@ -1,4 +1,4 @@
-ï»¿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -12,7 +12,7 @@ public class SaleDetailConfiguration : IEntityTypeConfiguration<SaleDetail>
         builder.HasKey(sd => sd.Id);
 
         builder.Property(sd => sd.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
         builder.Property(sd => sd.Quantity)
             .IsRequired();
@@ -25,12 +25,12 @@ public class SaleDetailConfiguration : IEntityTypeConfiguration<SaleDetail>
             .IsRequired()
             .HasPrecision(18, 2);
 
-        // Ãndice compuesto â€” acelera consultas del tipo
+        // Índice compuesto — acelera consultas del tipo
         // "dame todos los detalles de esta venta"
         builder.HasIndex(sd => new { sd.SaleId, sd.ProductId })
             .HasDatabaseName("IX_SaleDetails_SaleId_ProductId");
 
-        // RelaciÃ³n con Product â€” Restrict porque no querÃ©s
+        // Relación con Product — Restrict porque no querés
         // que se elimine un producto que tiene historial de ventas
         builder.HasOne(sd => sd.Product)
             .WithMany(p => p.SaleDetails)

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -13,9 +13,9 @@ public class AlertConfiguration : IEntityTypeConfiguration<Alert>
         builder.HasKey(a => a.Id);
         
         builder.Property(a => a.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
-        // ─── Propiedades ──────────────────────────────────────────────────────
+        // --- Propiedades ------------------------------------------------------
         builder.Property(a => a.Type)
             .IsRequired();
 
@@ -26,7 +26,7 @@ public class AlertConfiguration : IEntityTypeConfiguration<Alert>
         builder.Property(a => a.IsRead)
             .HasDefaultValue(false);
 
-        // Consulta más frecuente: alertas no leídas para el dashboard
+        // Consulta m�s frecuente: alertas no le�das para el dashboard
         builder.HasIndex(a => a.IsRead)
             .HasDatabaseName("IX_Alerts_IsRead");
 

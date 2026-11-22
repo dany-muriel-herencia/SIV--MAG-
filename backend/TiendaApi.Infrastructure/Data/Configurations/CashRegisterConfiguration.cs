@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -12,9 +12,9 @@ public class CashRegisterConfiguration : IEntityTypeConfiguration<CashRegister>
         builder.HasKey(cr => cr.Id);
 
         builder.Property(cr => cr.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
-        // ─── Propiedades ──────────────────────────────────────────────────────
+        // --- Propiedades ------------------------------------------------------
 
         builder.Property(cr => cr.OpenedAt)
             .IsRequired();
@@ -41,9 +41,9 @@ public class CashRegisterConfiguration : IEntityTypeConfiguration<CashRegister>
         builder.Property(cr => cr.ClosingNotes)
             .HasMaxLength(500);
 
-        // ─── Índices ──────────────────────────────────────────────────────────
+        // --- �ndices ----------------------------------------------------------
 
-        // Consulta frecuente: ¿tiene este cajero un turno abierto?
+        // Consulta frecuente: �tiene este cajero un turno abierto?
         builder.HasIndex(cr => new { cr.UserId, cr.IsOpen })
             .HasDatabaseName("IX_CashRegisters_UserId_IsOpen");
 
@@ -51,7 +51,7 @@ public class CashRegisterConfiguration : IEntityTypeConfiguration<CashRegister>
             .HasDatabaseName("IX_CashRegisters_OpenedAt");
 
         builder.HasOne(cr => cr.User)
-            .WithMany()          // User no tiene colección de CashRegisters
+            .WithMany()          // User no tiene colecci�n de CashRegisters
             .HasForeignKey(cr => cr.UserId)
             .OnDelete(DeleteBehavior.Restrict);
     }

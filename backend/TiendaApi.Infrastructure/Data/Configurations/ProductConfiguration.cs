@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -13,7 +13,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
         builder.Property(p => p.Name)
             .IsRequired()
@@ -42,18 +42,18 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsActive)
             .HasDefaultValue(true);
 
-        // ─── Índices ──────────────────────────────────────────────────────────
+        // --- �ndices ----------------------------------------------------------
 
-        // SKU único — nunca dos productos con el mismo código
+        // SKU �nico � nunca dos productos con el mismo c�digo
         builder.HasIndex(p => p.SKU)
             .IsUnique()
             .HasDatabaseName("IX_Products_SKU");
 
-        // Índice en CategoryId — acelera filtros por categoría
+        // �ndice en CategoryId � acelera filtros por categor�a
         builder.HasIndex(p => p.CategoryId)
             .HasDatabaseName("IX_Products_CategoryId");
 
-        // ─── Relaciones ───────────────────────────────────────────────────────
+        // --- Relaciones -------------------------------------------------------
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)    
             .HasForeignKey(p => p.CategoryId)
