@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -13,7 +13,7 @@ public class PurchaseDetailConfiguration : IEntityTypeConfiguration<PurchaseDeta
         builder.HasKey(pd => pd.Id);
 
         builder.Property(pd => pd.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
         builder.Property(pd => pd.OrderedQuantity)
             .IsRequired();
@@ -33,12 +33,12 @@ public class PurchaseDetailConfiguration : IEntityTypeConfiguration<PurchaseDeta
             .IsRequired()
             .HasPrecision(18, 2);
 
-        // ─── Índices ──────────────────────────────────────────────────────────
+        // --- �ndices ----------------------------------------------------------
 
         builder.HasIndex(pd => new { pd.PurchaseId, pd.ProductId })
             .HasDatabaseName("IX_PurchaseDetails_PurchaseId_ProductId");
 
-        // ─── Relaciones ───────────────────────────────────────────────────────
+        // --- Relaciones -------------------------------------------------------
 
         builder.HasOne(pd => pd.Product)
             .WithMany(p => p.PurchaseDetails)

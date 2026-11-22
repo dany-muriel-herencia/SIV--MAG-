@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -12,9 +12,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
-        // ─── Propiedades ──────────────────────────────────────────────────────
+        // --- Propiedades ------------------------------------------------------
 
         builder.Property(c => c.FullName)
             .IsRequired()
@@ -39,9 +39,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.IsActive)
             .HasDefaultValue(true);
 
-        // ─── Índices ──────────────────────────────────────────────────────────
+        // --- �ndices ----------------------------------------------------------
 
-        // Índice en FullName para búsquedas rápidas por nombre
+        // �ndice en FullName para b�squedas r�pidas por nombre
         builder.HasIndex(c => c.FullName)
             .HasDatabaseName("IX_Customers_FullName");
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -12,9 +12,9 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         builder.HasKey(sm => sm.Id);
 
         builder.Property(sm => sm.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
-        // ─── Propiedades ──────────────────────────────────────────────────────
+        // --- Propiedades ------------------------------------------------------
 
         builder.Property(sm => sm.Date)
             .IsRequired();
@@ -37,9 +37,9 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         builder.Property(sm => sm.ReferenceType)
             .IsRequired();
 
-        // ─── Índices ──────────────────────────────────────────────────────────
+        // --- �ndices ----------------------------------------------------------
 
-        // Consulta más frecuente: historial de un producto específico
+        // Consulta m�s frecuente: historial de un producto espec�fico
         builder.HasIndex(sm => sm.ProductId)
             .HasDatabaseName("IX_StockMovements_ProductId");
 
@@ -47,11 +47,11 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         builder.HasIndex(sm => sm.Date)
             .HasDatabaseName("IX_StockMovements_Date");
 
-        // Índice compuesto para reportes por producto y fecha
+        // �ndice compuesto para reportes por producto y fecha
         builder.HasIndex(sm => new { sm.ProductId, sm.Date })
             .HasDatabaseName("IX_StockMovements_ProductId_Date");
 
-        // ─── Relaciones ───────────────────────────────────────────────────────
+        // --- Relaciones -------------------------------------------------------
 
         builder.HasOne(sm => sm.Product)
             .WithMany(p => p.StockMovements)

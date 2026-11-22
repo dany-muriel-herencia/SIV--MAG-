@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -12,7 +12,7 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
 
         builder.Property(s => s.Name)
             .IsRequired()

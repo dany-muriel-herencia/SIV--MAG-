@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TiendaApi.Domain.Entities;
 
@@ -13,9 +13,9 @@ public class CreditPaymentConfiguration : IEntityTypeConfiguration<CreditPayment
         builder.HasKey(cp => cp.Id);
 
         builder.Property(cp => cp.Id)
-            .HasDefaultValueSql("NEWSEQUENTIALID()");
+            .HasDefaultValueSql("gen_random_uuid()");
         
-        // ─── Propiedades
+        // --- Propiedades
         builder.Property(cp => cp.Date)
             .IsRequired();
         
@@ -26,14 +26,14 @@ public class CreditPaymentConfiguration : IEntityTypeConfiguration<CreditPayment
         builder.Property(cp => cp.Notes)
             .HasMaxLength(500);
 
-        // Historial de pagos por cliente — consulta muy frecuente
+        // Historial de pagos por cliente � consulta muy frecuente
         builder.HasIndex(cp => cp.CustomerId)
             .HasDatabaseName("IX_CreditPayments_CustomerId");
 
         builder.HasIndex(cp => cp.Date)
             .HasDatabaseName("IX_CreditPayments_Date");
 
-        // ─── Relaciones 
+        // --- Relaciones 
          builder.HasOne(cp => cp.Customer)
             .WithMany(c => c.CreditPayments)
             .HasForeignKey(cp => cp.CustomerId)

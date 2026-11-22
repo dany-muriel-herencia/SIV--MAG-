@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: sivmag-db
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - sivmag_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - sivmag-net
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: local/sivmag-api:0.1.0
+    container_name: sivmag-api
+    ports:
+      - "8080:8080"
+    environment:
+      APP_ENV: ${APP_ENV:-Production}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JwtSettings__SecretKey: ${JwtSettings__SecretKey}
+      AllowedOrigins: ${AllowedOrigins:-http://localhost:4200,http://localhost:8080}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sivmag-net
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: local/sivmag-web:0.1.0
+    container_name: sivmag-web
+    ports:
+      - "4200:8080"
+    depends_on:
+      - api
+    networks:
+      - sivmag-net
+    restart: unless-stopped
+
+networks:
+  sivmag-net:
+    driver: bridge
+
+volumes:
+  sivmag_db_data:
